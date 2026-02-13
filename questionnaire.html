@@ -1,0 +1,840 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Find Your Perfect Business Idea | BizBot</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", sans-serif;
+        background: linear-gradient(180deg, #f7fafc 0%, #edf2f7 100%);
+        min-height: 100vh;
+        padding: 40px 20px;
+      }
+
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 48px;
+      }
+
+      .logo {
+        font-size: 32px;
+        font-weight: 700;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 16px;
+      }
+
+      .header h1 {
+        font-size: 36px;
+        color: #1a202c;
+        margin-bottom: 12px;
+      }
+
+      .header p {
+        font-size: 18px;
+        color: #4a5568;
+      }
+
+      .progress-bar {
+        height: 8px;
+        background: #e2e8f0;
+        border-radius: 100px;
+        margin-bottom: 40px;
+        overflow: hidden;
+      }
+
+      .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        transition: width 0.3s ease;
+        width: 0%;
+      }
+
+      .step-indicator {
+        text-align: center;
+        margin-bottom: 32px;
+        color: #667eea;
+        font-weight: 600;
+      }
+
+      .question-card {
+        background: white;
+        border-radius: 16px;
+        padding: 40px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        margin-bottom: 24px;
+        display: none;
+      }
+
+      .question-card.active {
+        display: block;
+        animation: slideIn 0.4s ease-out;
+      }
+
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .question-card h2 {
+        font-size: 24px;
+        color: #1a202c;
+        margin-bottom: 12px;
+      }
+
+      .question-card .helper-text {
+        color: #718096;
+        font-size: 15px;
+        margin-bottom: 24px;
+      }
+
+      .form-group {
+        margin-bottom: 24px;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #2d3748;
+      }
+
+      .form-group input[type="text"],
+      .form-group input[type="number"],
+      .form-group textarea,
+      .form-group select {
+        width: 100%;
+        padding: 12px 16px;
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 16px;
+        transition: border-color 0.2s;
+      }
+
+      .form-group input:focus,
+      .form-group textarea:focus,
+      .form-group select:focus {
+        outline: none;
+        border-color: #667eea;
+      }
+
+      .form-group textarea {
+        min-height: 100px;
+        resize: vertical;
+      }
+
+      .checkbox-group,
+      .radio-group {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .checkbox-option,
+      .radio-option {
+        display: flex;
+        align-items: center;
+        padding: 16px;
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .checkbox-option:hover,
+      .radio-option:hover {
+        border-color: #667eea;
+        background: #f7fafc;
+      }
+
+      .checkbox-option input,
+      .radio-option input {
+        margin-right: 12px;
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+      }
+
+      .checkbox-option.selected,
+      .radio-option.selected {
+        border-color: #667eea;
+        background: rgba(102, 126, 234, 0.05);
+      }
+
+      .slider-container {
+        padding: 20px 0;
+      }
+
+      .slider {
+        width: 100%;
+        height: 8px;
+        border-radius: 5px;
+        background: #e2e8f0;
+        outline: none;
+        -webkit-appearance: none;
+      }
+
+      .slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        cursor: pointer;
+      }
+
+      .slider::-moz-range-thumb {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        cursor: pointer;
+        border: none;
+      }
+
+      .slider-labels {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 8px;
+        font-size: 14px;
+        color: #718096;
+      }
+
+      .slider-value {
+        text-align: center;
+        font-size: 18px;
+        font-weight: 600;
+        color: #667eea;
+        margin-bottom: 12px;
+      }
+
+      .button-group {
+        display: flex;
+        gap: 16px;
+        margin-top: 32px;
+      }
+
+      .btn {
+        flex: 1;
+        padding: 16px 32px;
+        border: none;
+        border-radius: 12px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+      }
+
+      .btn-primary:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(102, 126, 234, 0.3);
+      }
+
+      .btn-primary:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .btn-secondary {
+        background: white;
+        color: #667eea;
+        border: 2px solid #667eea;
+      }
+
+      .btn-secondary:hover {
+        background: #f7fafc;
+      }
+
+      .completion-message {
+        display: none;
+        text-align: center;
+        padding: 60px 40px;
+      }
+
+      .completion-message.active {
+        display: block;
+      }
+
+      .completion-message .icon {
+        font-size: 64px;
+        margin-bottom: 24px;
+      }
+
+      .completion-message h2 {
+        font-size: 32px;
+        color: #1a202c;
+        margin-bottom: 16px;
+      }
+
+      .completion-message p {
+        font-size: 18px;
+        color: #4a5568;
+        margin-bottom: 32px;
+      }
+
+      .loading-spinner {
+        display: inline-block;
+        width: 40px;
+        height: 40px;
+        border: 4px solid #e2e8f0;
+        border-top-color: #667eea;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      @media (max-width: 768px) {
+        .header h1 {
+          font-size: 28px;
+        }
+
+        .question-card {
+          padding: 24px;
+        }
+
+        .button-group {
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <div class="logo">BizBot</div>
+        <h1>Find Your Perfect Business Idea</h1>
+        <p>Answer a few questions to get personalized recommendations</p>
+      </div>
+
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <div class="step-indicator" id="stepIndicator">Question 1 of 12</div>
+
+      <!-- Question 1: Personal Background -->
+      <div class="question-card active" data-step="1">
+        <h2>What's your current professional situation?</h2>
+        <p class="helper-text">This helps us understand your starting point</p>
+        <div class="radio-group">
+          <label class="radio-option">
+            <input type="radio" name="professional_status" value="employed_fulltime" />
+            <span>Employed full-time (looking for side business)</span>
+          </label>
+          <label class="radio-option">
+            <input type="radio" name="professional_status" value="employed_parttime" />
+            <span>Employed part-time</span>
+          </label>
+          <label class="radio-option">
+            <input type="radio" name="professional_status" value="freelancer" />
+            <span>Freelancer / Self-employed</span>
+          </label>
+          <label class="radio-option">
+            <input type="radio" name="professional_status" value="student" />
+            <span>Student</span>
+          </label>
+          <label class="radio-option">
+            <input type="radio" name="professional_status" value="unemployed" />
+            <span>Currently between jobs</span>
+          </label>
+          <label class="radio-option">
+            <input type="radio" name="professional_status" value="retired" />
+            <span>Retired</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Question 2: Time Availability -->
+      <div class="question-card" data-step="2">
+        <h2>How many hours per week can you dedicate to your business?</h2>
+        <p class="helper-text">Be realistic about your time commitment</p>
+        <div class="slider-container">
+          <div class="slider-value" id="timeValue">10 hours/week</div>
+          <input type="range" min="5" max="60" value="10" class="slider" id="timeCommitment" />
+          <div class="slider-labels">
+            <span>5 hours</span>
+            <span>60+ hours</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Question 3: Initial Budget -->
+      <div class="question-card" data-step="3">
+        <h2>What's your available starting capital?</h2>
+        <p class="helper-text">How much money can you invest to get started?</p>
+        <div class="radio-group">
+          <label class="radio-option">
+            <input type="radio" name="budget" value="under_1000" />
+            <span>Under $1,000 (Bootstrap/Low cost)</span>
+          </label>
+          <label class="radio-option">
+            <input type="radio" name="budget" value="1000_5000" />
+            <span>$1,000 - $5,000</span>
+          </label>
+          <label class="radio-option">
+            <input type="radio" name="budget" value="5000_25000" />
+            <span>$5,000 - $25,000</span>
+          </label>
+          <label class="radio-option">
+            <input type="radio" name="budget" value="25000_50000" />
+            <span>$25,000 - $50,000</span>
+          </label>
+          <label class="radio-option">
+            <input type="radio" name="budget" value="over_50000" />
+            <span>$50,000+</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Question 4: Skills & Experience -->
+      <div class="question-card" data-step="4">
+        <h2>What are your key skills and areas of expertise?</h2>
+        <p class="helper-text">Select all that apply (multiple selections allowed)</p>
+        <div class="checkbox-group">
+          <label class="checkbox-option">
+            <input type="checkbox" name="skills" value="technology" />
+            <span>Technology / Software Development</span>
+          </label>
+          <label class="checkbox-option">
+            <input type="checkbox" name="skills" value="marketing" />
+            <span>Marketing / Sales</span>
+          </label>
+          <label class="checkbox-option">
+            <input type="checkbox" name="skills" value="design" />
+            <span>Design / Creative</span>
+          </label>
+          <label class="checkbox-option">
+            <input type="checkbox" name="skills" value="finance" />
+            <span>Finance / Accounting</span>
+          </label>
+          <label class="checkbox-option">
+            <input type="checkbox" name="skills" value="writing" />
+            <span>Writing / Content Creation</span>
+          </label>
+          <label class="checkbox-option">
+            <input type="checkbox" name="skills" value="teaching" />
+            <span>Teaching / Coaching</span>
+          </label>
+          <label class="checkbox-option">
+            <input type="checkbox" name="skills" value="healthcare" />
+            <span>Healthcare / Wellness</span>
+          </label>
+          <label class="checkbox-option">
+            <input type="checkbox" name="skills" value="trades" />
+            <span>Manual Labor / Trades</span>
+          </label>
+          <label class="checkbox-option">
+            <input type="checkbox" name="skills" value="operations" />
+            <span>Operations / Logistics</span>
+          </label>
+          <label class="checkbox-option">
+            <input type="checkbox" name="skills" value="other" />
+            <span>Other specialized skills</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Question 5: Business Model Preference -->
+      <div class="question-card" data-step="5">
+        <h2>Which business model interests you most?</h2>
+        <p class="helper-text">Choose the approach that fits your goals</p>
+        <div class="radio-group">
+          <label class="radio-option">
+            <input type="radio" name="business_model" value="service" />
+            <span>Service-based (consulting, coaching, freelancing)</span>
+          </label>
+          <label class="radio-option">
+            <input type="radio" name="business_model" value="product" />
+            <span>Product-based (physical or digital products)</span>
+          </label>
+          <label class="radio-option">
+            <input type="radio" name="business_model" value="ecommerce" />
+            <span>E-commerce (online store, dropshipping)</span>
+          </label>
+          <label class="radio-option">
+            <input type="radio" name="business_model" value="saas" />
+            <span>SaaS / Software Platform</span>
+          </label>
+          <label class="radio-option">
+            <input type="radio" name="business_model" value="content" />
+            <span>Content / Media (blog, YouTube, courses)</span>
+          </label>
+          <label class="radio-option">
+            <input type="radio" name="business_model" value="marketplace" />
+            <span>Marketplace / Platform</span>
+          </label>
+          <label class="radio-option">
+            <input type="radio" name="business_model" value="open" />
+            <span>Open to any model</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Question 6: Target Market -->
+      <div class="question-card" data-step="6">
+        <h2>Who would you prefer to serve?</h2>
+        <p class="helper-text">Select your ideal customer type</p>
+        <div class="radio-group">
+          <label class="radio-option">
+            <input type="radio" name="target_market" value="b2b" />
+            <span>Businesses (B2B)</span>
+          </label>
+          <label class="radio-option">
+            <input type="radio" name="target_market" value="b2c" />
+            <span>Individual Consumers (B2C)</span>
+          </label>
+          <label class="radio-option">
+            <input type="radio" name="target_market" value="both" />
+            <span>Both businesses and consumers</span>
+          </label>
+          <label class="radio-option">
+            <input type="radio" name="target_market" value="niche" />
+            <span>Specific niche community</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Question 7: Location Preference -->
+      <div class="question-card" data-step="7">
+        <h2>Where do you want to operate your business?</h2>
+        <p class="helper-text">Consider your lifestyle and location preferences</p>
+        <div class="radio-group">
+          <label class="radio-option">
+            <input type="radio" name="location" value="online_only" />
+            <span>Fully online / Remote</span>
+          </label>
+          <label class="radio-option">
+            <input type="radio" name="location" value="local" />
+            <span>Local / In-person in my area</span>
+          </label>
+          <label class="radio-option">
+            <input type="radio" name="location" value="hybrid" />
+            <span>Hybrid (mix of online and local)</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Question 8: Risk Tolerance -->
+      <div class="question-card" data-step="8">
+        <h2>What's your risk tolerance?</h2>
+        <p class="helper-text">How comfortable are you with business uncertainty?</p>
+        <div class="slider-container">
+          <div class="slider-value" id="riskValue">Moderate Risk</div>
+          <input type="range" min="1" max="10" value="5" class="slider" id="riskTolerance" />
+          <div class="slider-labels">
+            <span>Very Low Risk</span>
+            <span>High Risk</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Question 9: Revenue Timeline -->
+      <div class="question-card" data-step="9">
+        <h2>When do you need to start generating revenue?</h2>
+        <p class="helper-text">Understanding your timeline helps match you with appropriate ideas</p>
+        <div class="radio-group">
+          <label class="radio-option">
+            <input type="radio" name="revenue_timeline" value="immediate" />
+            <span>Immediately (1-3 months)</span>
+          </label>
+          <label class="radio-option">
+            <input type="radio" name="revenue_timeline" value="short_term" />
+            <span>Short-term (3-6 months)</span>
+          </label>
+          <label class="radio-option">
+            <input type="radio" name="revenue_timeline" value="medium_term" />
+            <span>Medium-term (6-12 months)</span>
+          </label>
+          <label class="radio-option">
+            <input type="radio" name="revenue_timeline" value="long_term" />
+            <span>Long-term (12+ months - I can wait)</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Question 10: Industry Interests -->
+      <div class="question-card" data-step="10">
+        <h2>Which industries interest you?</h2>
+        <p class="helper-text">Select all that appeal to you</p>
+        <div class="checkbox-group">
+          <label class="checkbox-option">
+            <input type="checkbox" name="industries" value="tech" />
+            <span>Technology & Software</span>
+          </label>
+          <label class="checkbox-option">
+            <input type="checkbox" name="industries" value="health" />
+            <span>Health & Wellness</span>
+          </label>
+          <label class="checkbox-option">
+            <input type="checkbox" name="industries" value="education" />
+            <span>Education & Training</span>
+          </label>
+          <label class="checkbox-option">
+            <input type="checkbox" name="industries" value="finance" />
+            <span>Finance & Professional Services</span>
+          </label>
+          <label class="checkbox-option">
+            <input type="checkbox" name="industries" value="ecommerce" />
+            <span>E-commerce & Retail</span>
+          </label>
+          <label class="checkbox-option">
+            <input type="checkbox" name="industries" value="food" />
+            <span>Food & Beverage</span>
+          </label>
+          <label class="checkbox-option">
+            <input type="checkbox" name="industries" value="creative" />
+            <span>Creative & Entertainment</span>
+          </label>
+          <label class="checkbox-option">
+            <input type="checkbox" name="industries" value="home" />
+            <span>Home Services & Real Estate</span>
+          </label>
+          <label class="checkbox-option">
+            <input type="checkbox" name="industries" value="sustainability" />
+            <span>Sustainability & Green Business</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Question 11: Goals -->
+      <div class="question-card" data-step="11">
+        <h2>What's your primary business goal?</h2>
+        <p class="helper-text">What matters most to you?</p>
+        <div class="radio-group">
+          <label class="radio-option">
+            <input type="radio" name="primary_goal" value="income" />
+            <span>Generate significant income</span>
+          </label>
+          <label class="radio-option">
+            <input type="radio" name="primary_goal" value="freedom" />
+            <span>Achieve time and location freedom</span>
+          </label>
+          <label class="radio-option">
+            <input type="radio" name="primary_goal" value="impact" />
+            <span>Make a positive impact</span>
+          </label>
+          <label class="radio-option">
+            <input type="radio" name="primary_goal" value="passion" />
+            <span>Pursue my passion</span>
+          </label>
+          <label class="radio-option">
+            <input type="radio" name="primary_goal" value="growth" />
+            <span>Build a scalable company</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Question 12: Additional Context -->
+      <div class="question-card" data-step="12">
+        <h2>Any additional context we should know?</h2>
+        <p class="helper-text">Share any specific constraints, interests, or requirements (optional)</p>
+        <div class="form-group">
+          <textarea id="additionalContext" placeholder="E.g., I have a background in healthcare, need to work from home, interested in sustainability..."></textarea>
+        </div>
+      </div>
+
+      <!-- Navigation Buttons -->
+      <div class="button-group">
+        <button class="btn btn-secondary" id="prevBtn" style="display: none;">Previous</button>
+        <button class="btn btn-primary" id="nextBtn">Next</button>
+      </div>
+
+      <!-- Completion Message -->
+      <div class="completion-message" id="completionMessage">
+        <div class="icon">✨</div>
+        <h2>Analyzing Your Profile...</h2>
+        <p>BizBot is finding the perfect business ideas for you based on your answers.</p>
+        <div class="loading-spinner"></div>
+      </div>
+    </div>
+
+    <script>
+      let currentStep = 1;
+      const totalSteps = 12;
+      const formData = {};
+
+      // Update progress bar
+      function updateProgress() {
+        const progress = (currentStep / totalSteps) * 100;
+        document.getElementById('progressFill').style.width = progress + '%';
+        document.getElementById('stepIndicator').textContent = `Question ${currentStep} of ${totalSteps}`;
+      }
+
+      // Show current step
+      function showStep(step) {
+        document.querySelectorAll('.question-card').forEach(card => {
+          card.classList.remove('active');
+        });
+        document.querySelector(`[data-step="${step}"]`).classList.add('active');
+        
+        // Update button visibility
+        document.getElementById('prevBtn').style.display = step === 1 ? 'none' : 'block';
+        document.getElementById('nextBtn').textContent = step === totalSteps ? 'Get My Recommendations' : 'Next';
+        
+        updateProgress();
+      }
+
+      // Save current step data
+      function saveCurrentStepData() {
+        const currentCard = document.querySelector(`[data-step="${currentStep}"]`);
+        
+        // Radio buttons
+        const radio = currentCard.querySelector('input[type="radio"]:checked');
+        if (radio) {
+          formData[radio.name] = radio.value;
+        }
+        
+        // Checkboxes
+        const checkboxes = currentCard.querySelectorAll('input[type="checkbox"]:checked');
+        if (checkboxes.length > 0) {
+          const checkboxName = checkboxes[0].name;
+          formData[checkboxName] = Array.from(checkboxes).map(cb => cb.value);
+        }
+        
+        // Sliders
+        const sliders = currentCard.querySelectorAll('input[type="range"]');
+        sliders.forEach(slider => {
+          formData[slider.id] = slider.value;
+        });
+        
+        // Textarea
+        const textarea = currentCard.querySelector('textarea');
+        if (textarea) {
+          formData[textarea.id] = textarea.value;
+        }
+      }
+
+      // Validate current step
+      function validateCurrentStep() {
+        const currentCard = document.querySelector(`[data-step="${currentStep}"]`);
+        const radio = currentCard.querySelector('input[type="radio"]:checked');
+        const checkboxes = currentCard.querySelectorAll('input[type="checkbox"]:checked');
+        
+        // For radio questions, at least one must be selected
+        if (currentCard.querySelector('input[type="radio"]') && !radio) {
+          return false;
+        }
+        
+        // For checkbox questions with 'skills' or 'industries', at least one must be selected
+        if (currentCard.querySelector('input[type="checkbox"][name="skills"]') && checkboxes.length === 0) {
+          return false;
+        }
+        if (currentCard.querySelector('input[type="checkbox"][name="industries"]') && checkboxes.length === 0) {
+          return false;
+        }
+        
+        return true;
+      }
+
+      // Next button
+      document.getElementById('nextBtn').addEventListener('click', function() {
+        if (!validateCurrentStep()) {
+          alert('Please answer this question before continuing.');
+          return;
+        }
+        
+        saveCurrentStepData();
+        
+        if (currentStep < totalSteps) {
+          currentStep++;
+          showStep(currentStep);
+        } else {
+          submitForm();
+        }
+      });
+
+      // Previous button
+      document.getElementById('prevBtn').addEventListener('click', function() {
+        if (currentStep > 1) {
+          currentStep--;
+          showStep(currentStep);
+        }
+      });
+
+      // Submit form
+      function submitForm() {
+        saveCurrentStepData();
+        
+        // Hide questions and show completion message
+        document.querySelectorAll('.question-card').forEach(card => card.style.display = 'none');
+        document.querySelector('.button-group').style.display = 'none';
+        document.getElementById('completionMessage').classList.add('active');
+        
+        // Store data in sessionStorage
+        sessionStorage.setItem('userQuestionnaireData', JSON.stringify(formData));
+        
+        // Redirect to results page after 2 seconds
+        setTimeout(() => {
+          window.location.href = 'recommendations.html';
+        }, 2000);
+      }
+
+      // Slider updates
+      document.getElementById('timeCommitment').addEventListener('input', function() {
+        document.getElementById('timeValue').textContent = this.value + ' hours/week';
+      });
+
+      const riskLabels = ['Very Low Risk', 'Low Risk', 'Below Average', 'Slightly Below Average', 'Moderate Risk', 
+                          'Slightly Above Average', 'Above Average', 'High Risk', 'Very High Risk', 'Extremely High Risk'];
+      document.getElementById('riskTolerance').addEventListener('input', function() {
+        document.getElementById('riskValue').textContent = riskLabels[this.value - 1];
+      });
+
+      // Add selection styling to options
+      document.querySelectorAll('.radio-option').forEach(option => {
+        option.addEventListener('click', function() {
+          this.closest('.radio-group').querySelectorAll('.radio-option').forEach(opt => {
+            opt.classList.remove('selected');
+          });
+          this.classList.add('selected');
+        });
+      });
+
+      document.querySelectorAll('.checkbox-option').forEach(option => {
+        option.addEventListener('click', function() {
+          setTimeout(() => {
+            if (this.querySelector('input').checked) {
+              this.classList.add('selected');
+            } else {
+              this.classList.remove('selected');
+            }
+          }, 10);
+        });
+      });
+
+      // Initialize
+      updateProgress();
+    </script>
+  </body>
+</html>
