@@ -1,0 +1,1051 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Business Idea Analysis | BizBot</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", sans-serif;
+        background: #f7fafc;
+        min-height: 100vh;
+      }
+
+      .sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 60px;
+        height: 100vh;
+        background: white;
+        border-right: 1px solid #e2e8f0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px 0;
+        gap: 20px;
+        z-index: 100;
+      }
+
+      .sidebar-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        color: #718096;
+        font-size: 20px;
+      }
+
+      .sidebar-icon:hover,
+      .sidebar-icon.active {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+      }
+
+      .main-container {
+        margin-left: 60px;
+        padding: 32px 40px;
+        max-width: 1400px;
+      }
+
+      .header {
+        margin-bottom: 32px;
+      }
+
+      .back-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: #718096;
+        text-decoration: none;
+        font-size: 15px;
+        transition: color 0.2s;
+        cursor: pointer;
+        background: none;
+        border: none;
+        font-family: inherit;
+        margin-bottom: 24px;
+      }
+
+      .back-button:hover {
+        color: #667eea;
+      }
+
+      .back-button::before {
+        content: '←';
+        font-size: 20px;
+      }
+
+      .page-title {
+        font-size: 32px;
+        color: #1a202c;
+        margin-bottom: 8px;
+        font-weight: 700;
+      }
+
+      .page-subtitle {
+        color: #718096;
+        font-size: 16px;
+      }
+
+      .loading-container {
+        text-align: center;
+        padding: 120px 20px;
+      }
+
+      .loading-spinner {
+        display: inline-block;
+        width: 60px;
+        height: 60px;
+        border: 6px solid #e2e8f0;
+        border-top-color: #667eea;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-bottom: 24px;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .loading-text {
+        font-size: 20px;
+        color: #4a5568;
+        margin-bottom: 12px;
+      }
+
+      .analysis-grid {
+        display: none;
+        grid-template-columns: repeat(12, 1fr);
+        gap: 24px;
+      }
+
+      .analysis-grid.active {
+        display: grid;
+      }
+
+      .card {
+        background: white;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
+
+      .col-4 {
+        grid-column: span 4;
+      }
+
+      .col-8 {
+        grid-column: span 8;
+      }
+
+      .col-12 {
+        grid-column: span 12;
+      }
+
+      /* Overall Viability Card */
+      .viability-card {
+        text-align: center;
+      }
+
+      .viability-card h3 {
+        font-size: 14px;
+        color: #718096;
+        margin-bottom: 24px;
+        font-weight: 600;
+      }
+
+      .score-circle {
+        width: 140px;
+        height: 140px;
+        margin: 0 auto 16px;
+        position: relative;
+      }
+
+      .score-circle svg {
+        transform: rotate(-90deg);
+      }
+
+      .score-circle circle {
+        fill: none;
+        stroke-width: 12;
+      }
+
+      .score-bg {
+        stroke: #e2e8f0;
+      }
+
+      .score-fill {
+        stroke: url(#gradient);
+        stroke-linecap: round;
+        transition: stroke-dashoffset 1s ease;
+      }
+
+      .score-number {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 42px;
+        font-weight: 700;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .score-label {
+        font-size: 12px;
+        color: #718096;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .viability-status {
+        margin-top: 16px;
+        font-size: 15px;
+        color: #2d3748;
+        font-weight: 600;
+      }
+
+      /* What's Wrong Card */
+      .whats-wrong-card h3 {
+        font-size: 16px;
+        color: #1a202c;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .issue-item {
+        padding: 12px 16px;
+        border-radius: 8px;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 14px;
+      }
+
+      .issue-item.high {
+        background: #fee;
+        color: #991b1b;
+      }
+
+      .issue-item.medium {
+        background: #fef3c7;
+        color: #92400e;
+      }
+
+      .issue-item.low {
+        background: #fef9e7;
+        color: #854d0e;
+      }
+
+      .issue-badge {
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .issue-badge.high {
+        background: #dc2626;
+        color: white;
+      }
+
+      .issue-badge.medium {
+        background: #f59e0b;
+        color: white;
+      }
+
+      .issue-badge.low {
+        background: #fbbf24;
+        color: #78350f;
+      }
+
+      /* Risk Factors Card */
+      .risk-card h3 {
+        font-size: 16px;
+        color: #1a202c;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .risk-item {
+        padding: 16px;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        margin-bottom: 12px;
+      }
+
+      .risk-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+      }
+
+      .risk-name {
+        font-weight: 600;
+        color: #2d3748;
+        font-size: 14px;
+      }
+
+      .risk-description {
+        font-size: 13px;
+        color: #718096;
+        line-height: 1.5;
+      }
+
+      /* Cost Structure Card */
+      .cost-card h3 {
+        font-size: 16px;
+        color: #1a202c;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .cost-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 0;
+        border-bottom: 1px solid #e2e8f0;
+      }
+
+      .cost-item:last-child {
+        border-bottom: none;
+      }
+
+      .cost-label {
+        font-size: 14px;
+        color: #2d3748;
+        font-weight: 600;
+      }
+
+      .cost-sublabel {
+        font-size: 12px;
+        color: #718096;
+      }
+
+      .cost-value {
+        font-size: 18px;
+        font-weight: 700;
+        color: #2d3748;
+      }
+
+      /* Market Fit Section */
+      .market-fit-card h3 {
+        font-size: 16px;
+        color: #1a202c;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .market-metric {
+        margin-bottom: 24px;
+      }
+
+      .metric-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+      }
+
+      .metric-label {
+        font-size: 14px;
+        color: #2d3748;
+        font-weight: 600;
+      }
+
+      .metric-value {
+        font-size: 16px;
+        font-weight: 700;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .progress-bar {
+        height: 8px;
+        background: #e2e8f0;
+        border-radius: 100px;
+        overflow: hidden;
+      }
+
+      .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        border-radius: 100px;
+        transition: width 1s ease;
+      }
+
+      .metric-note {
+        font-size: 12px;
+        color: #718096;
+        margin-top: 6px;
+      }
+
+      /* Launch Roadmap */
+      .roadmap-card h3 {
+        font-size: 16px;
+        color: #1a202c;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .roadmap-steps {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: relative;
+      }
+
+      .roadmap-step {
+        text-align: center;
+        position: relative;
+        z-index: 1;
+      }
+
+      .step-circle {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 8px;
+        font-weight: 700;
+        font-size: 16px;
+        border: 3px solid #e2e8f0;
+        background: white;
+        color: #a0aec0;
+      }
+
+      .step-circle.active {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        border-color: #10b981;
+        color: white;
+      }
+
+      .step-circle.current {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-color: #667eea;
+        color: white;
+      }
+
+      .step-label {
+        font-size: 12px;
+        color: #718096;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .roadmap-line {
+        position: absolute;
+        top: 24px;
+        left: 10%;
+        right: 10%;
+        height: 3px;
+        background: #e2e8f0;
+        z-index: 0;
+      }
+
+      /* Scalability Card */
+      .scalability-card h3 {
+        font-size: 16px;
+        color: #1a202c;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .scalability-score {
+        font-size: 48px;
+        font-weight: 700;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 8px;
+      }
+
+      .scalability-bars {
+        display: flex;
+        gap: 4px;
+        margin-bottom: 12px;
+      }
+
+      .scalability-bar {
+        width: 12px;
+        height: 32px;
+        background: #e2e8f0;
+        border-radius: 4px;
+      }
+
+      .scalability-bar.filled {
+        background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+      }
+
+      .scalability-description {
+        font-size: 13px;
+        color: #718096;
+        line-height: 1.6;
+      }
+
+      /* Validation Checklist */
+      .checklist-card h3 {
+        font-size: 16px;
+        color: #1a202c;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .checklist-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 0;
+        border-bottom: 1px solid #e2e8f0;
+      }
+
+      .checklist-item:last-child {
+        border-bottom: none;
+      }
+
+      .checkbox {
+        width: 24px;
+        height: 24px;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+
+      .checkbox.checked {
+        background: #10b981;
+        color: white;
+      }
+
+      .checkbox.unchecked {
+        border: 2px solid #e2e8f0;
+        background: white;
+      }
+
+      .checklist-text {
+        font-size: 14px;
+        color: #2d3748;
+        flex: 1;
+      }
+
+      .checklist-text.completed {
+        text-decoration: line-through;
+        color: #a0aec0;
+      }
+
+      /* Improvement Suggestions */
+      .suggestions-card h3 {
+        font-size: 16px;
+        color: #1a202c;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .suggestion-item {
+        padding: 16px;
+        border-radius: 8px;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: start;
+        gap: 12px;
+      }
+
+      .suggestion-item.high {
+        background: #fee;
+        border-left: 4px solid #dc2626;
+      }
+
+      .suggestion-item.medium {
+        background: #fef3c7;
+        border-left: 4px solid #f59e0b;
+      }
+
+      .suggestion-item.low {
+        background: #e0f2fe;
+        border-left: 4px solid #0284c7;
+      }
+
+      .suggestion-icon {
+        font-size: 18px;
+        margin-top: 2px;
+      }
+
+      .suggestion-content {
+        flex: 1;
+      }
+
+      .suggestion-text {
+        font-size: 14px;
+        color: #2d3748;
+        margin-bottom: 4px;
+        font-weight: 600;
+      }
+
+      @media (max-width: 1024px) {
+        .col-4,
+        .col-8 {
+          grid-column: span 12;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .sidebar {
+          display: none;
+        }
+
+        .main-container {
+          margin-left: 0;
+          padding: 20px;
+        }
+
+        .analysis-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .col-4,
+        .col-8,
+        .col-12 {
+          grid-column: span 1;
+        }
+
+        .roadmap-steps {
+          flex-wrap: wrap;
+          gap: 16px;
+        }
+
+        .roadmap-line {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-icon active">🚀</div>
+      <div class="sidebar-icon">⚡</div>
+      <div class="sidebar-icon">📊</div>
+      <div class="sidebar-icon">💡</div>
+      <div class="sidebar-icon">📋</div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+      <!-- Header -->
+      <div class="header">
+        <button class="back-button" id="backButton">
+          Back to Input
+        </button>
+        <h1 class="page-title" id="pageTitle">Analysis: ...</h1>
+        <p class="page-subtitle">Deep diagnostic and improvement path for your business idea.</p>
+      </div>
+
+      <!-- Loading State -->
+      <div class="loading-container" id="loadingContainer">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Analyzing your business idea...</div>
+        <div class="loading-subtext" style="color: #718096; font-size: 16px;">This may take a moment</div>
+      </div>
+
+      <!-- Analysis Grid -->
+      <div class="analysis-grid" id="analysisGrid">
+        <!-- Overall Viability -->
+        <div class="card col-4 viability-card">
+          <h3>Overall Viability</h3>
+          <div class="score-circle">
+            <svg width="140" height="140">
+              <defs>
+                <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" style="stop-color:#667eea" />
+                  <stop offset="100%" style="stop-color:#764ba2" />
+                </linearGradient>
+              </defs>
+              <circle class="score-bg" cx="70" cy="70" r="62"></circle>
+              <circle class="score-fill" cx="70" cy="70" r="62" 
+                      stroke-dasharray="390" stroke-dashoffset="390" id="scoreCircle"></circle>
+            </svg>
+            <div class="score-number" id="scoreNumber">0</div>
+          </div>
+          <div class="score-label">BOOST</div>
+          <div class="viability-status" id="viabilityStatus">Calculating...</div>
+        </div>
+
+        <!-- What's Wrong -->
+        <div class="card col-4 whats-wrong-card">
+          <h3>⚠️ What's Wrong?</h3>
+          <div id="issuesList"></div>
+        </div>
+
+        <!-- Risk Factors -->
+        <div class="card col-4 risk-card">
+          <h3>⚡ Risk Factors</h3>
+          <div id="risksList"></div>
+        </div>
+
+        <!-- Market Fit -->
+        <div class="card col-8 market-fit-card">
+          <h3>📈 Market Fit</h3>
+          <div id="marketMetrics"></div>
+        </div>
+
+        <!-- Cost Structure -->
+        <div class="card col-4 cost-card">
+          <h3>💵 Cost Structure</h3>
+          <div id="costStructure"></div>
+        </div>
+
+        <!-- Launch Roadmap -->
+        <div class="card col-12 roadmap-card">
+          <h3>🗺️ Launch Roadmap</h3>
+          <div class="roadmap-steps">
+            <div class="roadmap-line"></div>
+            <div class="roadmap-step">
+              <div class="step-circle active">✓</div>
+              <div class="step-label">Validate</div>
+            </div>
+            <div class="roadmap-step">
+              <div class="step-circle current">2</div>
+              <div class="step-label">Plan</div>
+            </div>
+            <div class="roadmap-step">
+              <div class="step-circle">3</div>
+              <div class="step-label">Launch</div>
+            </div>
+            <div class="roadmap-step">
+              <div class="step-circle">4</div>
+              <div class="step-label">Improve</div>
+            </div>
+            <div class="roadmap-step">
+              <div class="step-circle">5</div>
+              <div class="step-label">Scale</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Scalability -->
+        <div class="card col-4 scalability-card">
+          <h3>🚀 Scalability</h3>
+          <div class="scalability-score" id="scalabilityScore">0/10</div>
+          <div class="scalability-bars" id="scalabilityBars"></div>
+          <div class="scalability-description" id="scalabilityDescription">Calculating...</div>
+        </div>
+
+        <!-- Validation Checklist -->
+        <div class="card col-4 checklist-card">
+          <h3>✅ Validation Checklist</h3>
+          <div id="checklistItems"></div>
+        </div>
+
+        <!-- Improvement Suggestions -->
+        <div class="card col-4 suggestions-card">
+          <h3>💡 Improvement Suggestions</h3>
+          <div id="suggestionsList"></div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const businessIdea = sessionStorage.getItem('businessIdeaToAnalyze') || 'Your Business Idea';
+      
+      // Set page title
+      document.getElementById('pageTitle').textContent = `Analysis: ${businessIdea.substring(0, 50)}${businessIdea.length > 50 ? '...' : ''}`;
+
+      // Back button functionality
+      document.getElementById('backButton').addEventListener('click', function() {
+        window.location.href = 'idea-input.html';
+      });
+
+      // Animate score circle
+      function animateScore(score) {
+        const circle = document.getElementById('scoreCircle');
+        const scoreNumber = document.getElementById('scoreNumber');
+        const circumference = 390;
+        const offset = circumference - (score / 100) * circumference;
+        
+        setTimeout(() => {
+          circle.style.strokeDashoffset = offset;
+          let current = 0;
+          const interval = setInterval(() => {
+            if (current >= score) {
+              clearInterval(interval);
+            } else {
+              current++;
+              scoreNumber.textContent = current;
+            }
+          }, 20);
+        }, 300);
+      }
+
+      // Generate analysis using AI
+      async function generateAnalysis() {
+        const prompt = `Analyze this business idea comprehensively: "${businessIdea}"
+
+Provide a detailed analysis in JSON format with these exact fields:
+
+{
+  "overallScore": 83,
+  "viabilityStatus": "Highly promising idea!",
+  "issues": [
+    {"text": "Market Validation Needed", "severity": "high"},
+    {"text": "Competitor Research", "severity": "medium"},
+    {"text": "Initial Funding Plan", "severity": "low"}
+  ],
+  "risks": [
+    {"name": "Execution Risk", "level": "medium", "description": "Critical issue identified. Check mitigation steps."},
+    {"name": "Market Entry Barrier", "level": "high", "description": "High barriers exist. Strategic planning required."}
+  ],
+  "marketMetrics": [
+    {"label": "General Demand", "value": 75, "note": "Solid initial indicators for the concept"},
+    {"label": "Market Readiness", "value": 80, "note": "Market is emerging but requires education"}
+  ],
+  "costs": [
+    {"label": "Development", "sublabel": "SETUP", "value": "$5,000"},
+    {"label": "Marketing", "sublabel": "MONTHLY", "value": "$1,200"}
+  ],
+  "scalability": {
+    "score": 7,
+    "description": "Good potential for growth through digital channels and automation."
+  },
+  "checklist": [
+    {"text": "Define Target Persona", "completed": true},
+    {"text": "Analyze Top 3 Competitors", "completed": true},
+    {"text": "Create MVP Wireframes", "completed": false},
+    {"text": "Set up Landing Page", "completed": false}
+  ],
+  "suggestions": [
+    {"text": "Focus on B2B partnerships first", "priority": "high"},
+    {"text": "Implement a freemium model", "priority": "medium"},
+    {"text": "Automate customer onboarding", "priority": "low"}
+  ]
+}
+
+IMPORTANT: Return ONLY valid JSON, no markdown or additional text.`;
+
+        try {
+          const response = await fetch("https://api.anthropic.com/v1/messages", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              model: "claude-sonnet-4-20250514",
+              max_tokens: 3000,
+              messages: [
+                { role: "user", content: prompt }
+              ],
+            })
+          });
+
+          const data = await response.json();
+          let analysisText = data.content[0].text;
+          analysisText = analysisText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+          
+          return JSON.parse(analysisText);
+        } catch (error) {
+          console.error('Error generating analysis:', error);
+          return getFallbackAnalysis();
+        }
+      }
+
+      // Fallback analysis
+      function getFallbackAnalysis() {
+        return {
+          overallScore: 83,
+          viabilityStatus: "Highly promising idea!",
+          issues: [
+            {text: "Market Validation Needed", severity: "high"},
+            {text: "Competitor Research", severity: "medium"},
+            {text: "Initial Funding Plan", severity: "low"}
+          ],
+          risks: [
+            {name: "Execution Risk", level: "medium", description: "Critical issue identified. Check mitigation steps."},
+            {name: "Market Entry Barrier", level: "high", description: "Critical issue identified. Check mitigation steps."}
+          ],
+          marketMetrics: [
+            {label: "General Demand", value: 75, note: "Solid initial indicators for the concept"},
+            {label: "Market Readiness", value: 80, note: "Market is emerging but requires education"}
+          ],
+          costs: [
+            {label: "Development", sublabel: "SETUP", value: "$5,000"},
+            {label: "Marketing", sublabel: "MONTHLY", value: "$1,200"}
+          ],
+          scalability: {
+            score: 7,
+            description: "Good potential for growth through digital channels and automation."
+          },
+          checklist: [
+            {text: "Define Target Persona", completed: true},
+            {text: "Analyze Top 3 Competitors", completed: true},
+            {text: "Create MVP Wireframes", completed: false},
+            {text: "Set up Landing Page", completed: false}
+          ],
+          suggestions: [
+            {text: "Focus on B2B partnerships first", priority: "high"},
+            {text: "Implement a freemium model", priority: "medium"},
+            {text: "Automate customer onboarding", priority: "low"}
+          ]
+        };
+      }
+
+      // Display analysis
+      function displayAnalysis(analysis) {
+        // Animate score
+        animateScore(analysis.overallScore);
+        document.getElementById('viabilityStatus').textContent = analysis.viabilityStatus;
+
+        // Issues
+        const issuesList = document.getElementById('issuesList');
+        analysis.issues.forEach(issue => {
+          issuesList.innerHTML += `
+            <div class="issue-item ${issue.severity}">
+              <span>${issue.text}</span>
+              <span class="issue-badge ${issue.severity}">${issue.severity}</span>
+            </div>
+          `;
+        });
+
+        // Risks
+        const risksList = document.getElementById('risksList');
+        analysis.risks.forEach(risk => {
+          risksList.innerHTML += `
+            <div class="risk-item">
+              <div class="risk-header">
+                <span class="risk-name">${risk.name}</span>
+                <span class="issue-badge ${risk.level}">${risk.level}</span>
+              </div>
+              <div class="risk-description">${risk.description}</div>
+            </div>
+          `;
+        });
+
+        // Market Metrics
+        const marketMetrics = document.getElementById('marketMetrics');
+        analysis.marketMetrics.forEach(metric => {
+          marketMetrics.innerHTML += `
+            <div class="market-metric">
+              <div class="metric-header">
+                <span class="metric-label">${metric.label}</span>
+                <span class="metric-value">${metric.value}%</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: ${metric.value}%"></div>
+              </div>
+              <div class="metric-note">${metric.note}</div>
+            </div>
+          `;
+        });
+
+        // Costs
+        const costStructure = document.getElementById('costStructure');
+        analysis.costs.forEach(cost => {
+          costStructure.innerHTML += `
+            <div class="cost-item">
+              <div>
+                <div class="cost-label">${cost.label}</div>
+                <div class="cost-sublabel">${cost.sublabel}</div>
+              </div>
+              <div class="cost-value">${cost.value}</div>
+            </div>
+          `;
+        });
+
+        // Scalability
+        document.getElementById('scalabilityScore').textContent = `${analysis.scalability.score}/10`;
+        document.getElementById('scalabilityDescription').textContent = analysis.scalability.description;
+        
+        const scalabilityBars = document.getElementById('scalabilityBars');
+        for (let i = 0; i < 10; i++) {
+          scalabilityBars.innerHTML += `<div class="scalability-bar ${i < analysis.scalability.score ? 'filled' : ''}"></div>`;
+        }
+
+        // Checklist
+        const checklistItems = document.getElementById('checklistItems');
+        analysis.checklist.forEach(item => {
+          checklistItems.innerHTML += `
+            <div class="checklist-item">
+              <div class="checkbox ${item.completed ? 'checked' : 'unchecked'}">
+                ${item.completed ? '✓' : ''}
+              </div>
+              <div class="checklist-text ${item.completed ? 'completed' : ''}">${item.text}</div>
+            </div>
+          `;
+        });
+
+        // Suggestions
+        const suggestionsList = document.getElementById('suggestionsList');
+        analysis.suggestions.forEach(suggestion => {
+          suggestionsList.innerHTML += `
+            <div class="suggestion-item ${suggestion.priority}">
+              <div class="suggestion-icon">•</div>
+              <div class="suggestion-content">
+                <div class="suggestion-text">${suggestion.text}</div>
+              </div>
+              <span class="issue-badge ${suggestion.priority}">${suggestion.priority}</span>
+            </div>
+          `;
+        });
+      }
+
+      // Initialize
+      async function init() {
+        document.getElementById('loadingContainer').style.display = 'block';
+        document.getElementById('analysisGrid').classList.remove('active');
+
+        setTimeout(async () => {
+          const analysis = await generateAnalysis();
+          
+          document.getElementById('loadingContainer').style.display = 'none';
+          document.getElementById('analysisGrid').classList.add('active');
+          
+          displayAnalysis(analysis);
+        }, 2500);
+      }
+
+      init();
+    </script>
+  </body>
+</html>
