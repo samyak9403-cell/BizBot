@@ -1,0 +1,903 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BizBot - Validate Your Business Idea Before You Build</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", sans-serif;
+        line-height: 1.6;
+        color: #1a202c;
+        background: #ffffff;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 24px;
+      }
+
+      /* Navigation */
+      nav {
+        padding: 20px 0;
+        position: sticky;
+        top: 0;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        z-index: 1000;
+        border-bottom: 1px solid #e2e8f0;
+      }
+
+      nav .container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .logo {
+        font-size: 24px;
+        font-weight: 700;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 32px;
+        align-items: center;
+        list-style: none;
+      }
+
+      .nav-links a {
+        color: #4a5568;
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.2s;
+        font-size: 15px;
+      }
+
+      .nav-links a:hover,
+      .nav-links a.active {
+        color: #667eea;
+      }
+
+      .nav-cta {
+        padding: 10px 24px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition:
+          transform 0.2s,
+          box-shadow 0.2s;
+      }
+
+      .nav-cta:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+      }
+
+      .mobile-menu-btn {
+        display: none;
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        color: #4a5568;
+      }
+
+      /* Hero Section */
+      .hero {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        text-align: center;
+        background: linear-gradient(180deg, #f7fafc 0%, #ffffff 100%);
+        padding: 80px 0;
+      }
+
+      .hero h1 {
+        font-size: 56px;
+        font-weight: 800;
+        margin-bottom: 24px;
+        line-height: 1.2;
+        background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .hero p {
+        font-size: 20px;
+        color: #4a5568;
+        max-width: 700px;
+        margin: 0 auto 40px;
+        line-height: 1.7;
+      }
+
+      .cta-group {
+        display: flex;
+        gap: 16px;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+
+      .btn-primary {
+        padding: 16px 40px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 18px;
+        font-weight: 600;
+        cursor: pointer;
+        transition:
+          transform 0.2s,
+          box-shadow 0.2s;
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 28px rgba(102, 126, 234, 0.4);
+      }
+
+      .btn-secondary {
+        padding: 16px 40px;
+        background: white;
+        color: #667eea;
+        border: 2px solid #667eea;
+        border-radius: 12px;
+        font-size: 18px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .btn-secondary:hover {
+        background: #f7fafc;
+        transform: translateY(-2px);
+      }
+
+      /* Problem Section */
+      .problem {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        background: white;
+        padding: 100px 0;
+      }
+
+      .section-title {
+        font-size: 42px;
+        font-weight: 700;
+        text-align: center;
+        margin-bottom: 24px;
+        line-height: 1.3;
+      }
+
+      .section-content {
+        max-width: 800px;
+        margin: 0 auto;
+        font-size: 18px;
+        color: #4a5568;
+        text-align: center;
+        line-height: 1.8;
+      }
+
+      .highlight {
+        color: #667eea;
+        font-weight: 600;
+      }
+
+      /* Solution Section */
+      .solution {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        background: linear-gradient(180deg, #f7fafc 0%, #edf2f7 100%);
+        padding: 100px 0;
+      }
+
+      .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 32px;
+        margin-top: 60px;
+      }
+
+      .feature-card {
+        background: white;
+        padding: 32px;
+        border-radius: 16px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        transition:
+          transform 0.3s,
+          box-shadow 0.3s;
+      }
+
+      .feature-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+      }
+
+      .feature-icon {
+        width: 56px;
+        height: 56px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        margin-bottom: 20px;
+      }
+
+      .feature-card h3 {
+        font-size: 22px;
+        margin-bottom: 12px;
+        color: #1a202c;
+      }
+
+      .feature-card p {
+        color: #4a5568;
+        line-height: 1.7;
+      }
+
+      /* How It Works */
+      .how-it-works {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        background: white;
+        padding: 100px 0;
+      }
+
+      .steps {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 40px;
+        margin-top: 60px;
+      }
+
+      .step {
+        text-align: center;
+        position: relative;
+      }
+
+      .step-number {
+        width: 64px;
+        height: 64px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        font-weight: 700;
+        margin: 0 auto 24px;
+      }
+
+      .step h3 {
+        font-size: 20px;
+        margin-bottom: 12px;
+        color: #1a202c;
+      }
+
+      .step p {
+        color: #4a5568;
+        line-height: 1.7;
+      }
+
+      /* Comparison Section */
+      .comparison {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        background: linear-gradient(180deg, #1a202c 0%, #2d3748 100%);
+        color: white;
+        padding: 100px 0;
+      }
+
+      .comparison .section-title {
+        color: white;
+      }
+
+      .comparison-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 40px;
+        margin-top: 60px;
+        max-width: 900px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .comparison-card {
+        background: rgba(255, 255, 255, 0.05);
+        padding: 40px;
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .comparison-card.highlight-card {
+        background: linear-gradient(
+          135deg,
+          rgba(102, 126, 234, 0.2) 0%,
+          rgba(118, 75, 162, 0.2) 100%
+        );
+        border: 2px solid #667eea;
+      }
+
+      .comparison-card h3 {
+        font-size: 24px;
+        margin-bottom: 24px;
+        color: white;
+      }
+
+      .comparison-card ul {
+        list-style: none;
+      }
+
+      .comparison-card li {
+        padding: 12px 0;
+        padding-left: 32px;
+        position: relative;
+        color: #e2e8f0;
+      }
+
+      .comparison-card li::before {
+        content: "×";
+        position: absolute;
+        left: 0;
+        color: #fc8181;
+        font-size: 24px;
+        font-weight: bold;
+      }
+
+      .comparison-card.highlight-card li::before {
+        content: "✓";
+        color: #68d391;
+      }
+
+      /* Feature Highlights */
+      .highlights {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        background: white;
+        padding: 100px 0;
+      }
+
+      .highlights-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 32px;
+        margin-top: 60px;
+      }
+
+      .highlight-card {
+        background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+        padding: 32px;
+        border-radius: 16px;
+        text-align: center;
+        transition: transform 0.3s;
+      }
+
+      .highlight-card:hover {
+        transform: translateY(-8px);
+      }
+
+      .highlight-icon {
+        font-size: 48px;
+        margin-bottom: 16px;
+      }
+
+      .highlight-card h3 {
+        font-size: 20px;
+        margin-bottom: 12px;
+        color: #1a202c;
+      }
+
+      .highlight-card p {
+        color: #4a5568;
+        font-size: 15px;
+      }
+
+      /* Dashboard Mockup */
+      .mockup-section {
+        padding: 80px 0;
+        background: linear-gradient(180deg, #edf2f7 0%, #f7fafc 100%);
+      }
+
+      .mockup {
+        max-width: 1000px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+      }
+
+      .mockup-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 12px;
+        padding: 32px;
+        color: white;
+        margin-bottom: 24px;
+      }
+
+      .mockup-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+      }
+
+      .stat {
+        background: rgba(255, 255, 255, 0.15);
+        padding: 20px;
+        border-radius: 8px;
+        backdrop-filter: blur(10px);
+      }
+
+      .stat-value {
+        font-size: 32px;
+        font-weight: 700;
+        margin-bottom: 4px;
+      }
+
+      .stat-label {
+        font-size: 14px;
+        opacity: 0.9;
+      }
+
+      /* Final CTA */
+      .final-cta {
+        padding: 120px 0;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        text-align: center;
+      }
+
+      .final-cta h2 {
+        font-size: 48px;
+        font-weight: 700;
+        margin-bottom: 24px;
+      }
+
+      .final-cta p {
+        font-size: 20px;
+        margin-bottom: 40px;
+        opacity: 0.95;
+      }
+
+      .btn-white {
+        padding: 18px 48px;
+        background: white;
+        color: #667eea;
+        border: none;
+        border-radius: 12px;
+        font-size: 18px;
+        font-weight: 600;
+        cursor: pointer;
+        transition:
+          transform 0.2s,
+          box-shadow 0.2s;
+      }
+
+      .btn-white:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2);
+      }
+
+      /* Footer */
+      footer {
+        padding: 40px 0;
+        background: #1a202c;
+        color: #a0aec0;
+        text-align: center;
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .hero h1 {
+          font-size: 36px;
+        }
+
+        .hero p {
+          font-size: 18px;
+        }
+
+        .section-title {
+          font-size: 32px;
+        }
+
+        .comparison-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .cta-group {
+          flex-direction: column;
+        }
+
+        .btn-primary,
+        .btn-secondary {
+          width: 100%;
+        }
+
+        .nav-links {
+          display: none;
+          position: absolute;
+          top: 100%;
+          left: 0;
+          right: 0;
+          background: white;
+          flex-direction: column;
+          padding: 20px;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+          gap: 16px;
+        }
+
+        .nav-links.active {
+          display: flex;
+        }
+
+        .mobile-menu-btn {
+          display: block;
+          order: -1;
+        }
+
+        nav {
+          position: relative;
+        }
+      }
+
+      /* Subtle animations */
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .hero,
+      .problem,
+      .solution,
+      .how-it-works,
+      .comparison,
+      .highlights {
+        animation: fadeInUp 0.8s ease-out;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navigation -->
+    <nav>
+      <div class="container">
+        <div class="logo">BizBot</div>
+        <ul class="nav-links" id="navLinks">
+          <li><a href="#hero">Home</a></li>
+          <li><a href="#solution">Evaluation</a></li>
+          <li><a href="#how-it-works">How It Works</a></li>
+          <li><a href="#comparison">Why BizBot</a></li>
+          <li><a href="#features">Features</a></li>
+        </ul>
+        <button class="mobile-menu-btn" id="mobileMenuBtn">☰</button>
+        <button class="nav-cta" onclick="window.location.href='questionnaire.html'">Get Started</button>
+      </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="hero">
+      <div class="container">
+        <h1>
+          <span style="font-size: 50px; font: 24px">Turn Your Ideas Into</span
+          ><br /><span class="logo" style="font-size: 50px"
+            >Actionable Plans</span
+          >
+        </h1>
+        <p>
+          BizBot analyzes your business ideas, identifies risks, and gives<br />you
+          a step-by-step informative roadmap to launch. Answer a few
+          questions<br />and discover the perfect idea for you.
+        </p>
+        <div class="cta-group">
+          <button class="btn-primary" onclick="window.location.href='questionnaire.html'">Find My Perfect Idea</button>
+          <button class="btn-secondary" onclick="window.location.href='idea-input.html'">I Already Have an Idea</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Problem Section -->
+
+    <!-- Solution Section -->
+    <section class="solution" id="solution">
+      <div class="container">
+        <h2 class="section-title">A Structured Business Evaluation Engine</h2>
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon">📊</div>
+            <h3>Multi-Pillar Analysis</h3>
+            <p>
+              Evaluates your idea across market viability, revenue potential,
+              competition, and operational feasibility.
+            </p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">⚠️</div>
+            <h3>Risk Detection</h3>
+            <p>
+              Identifies weaknesses and potential failure points before they
+              become costly problems.
+            </p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🧭</div>
+            <h3>Competitive Positioning Analyzer</h3>
+            <p>
+              Identifies your unique value proposition, maps competitor
+              strengths, and highlights strategic gaps you can exploit to stand
+              out in the market.
+            </p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🚀</div>
+            <h3>Scalability Analysis</h3>
+            <p>
+              Assesses whether your business model can grow beyond initial
+              launch.
+            </p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">✅</div>
+            <h3>Actionable Steps</h3>
+            <p>
+              Provides concrete, prioritized improvement recommendations you can
+              act on immediately.
+            </p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🎯</div>
+            <h3>Growth Opportunities</h3>
+            <p>
+              Suggests future expansion paths and revenue diversification
+              strategies.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="how-it-works" id="how-it-works">
+      <div class="container">
+        <h2 class="section-title">How It Works</h2>
+        <div class="steps">
+          <div class="step">
+            <div class="step-number">1</div>
+            <h3>Submit Your Idea</h3>
+            <p>Describe your business concept in a simple form</p>
+          </div>
+          <div class="step">
+            <div class="step-number">2</div>
+            <h3>BizBot Analyzes</h3>
+            <p>Our engine evaluates market, revenue, and risk factors</p>
+          </div>
+          <div class="step">
+            <div class="step-number">3</div>
+            <h3>Get Your Report</h3>
+            <p>Receive a structured evaluation with clear insights</p>
+          </div>
+          <div class="step">
+            <div class="step-number">4</div>
+            <h3>Follow the Roadmap</h3>
+            <p>Implement personalized improvement recommendations</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Dashboard Mockup -->
+
+    <!-- Comparison Section -->
+    <section class="comparison" id="comparison">
+      <div class="container">
+        <h2 class="section-title">Why BizBot is Different ?</h2>
+        <div class="comparison-grid">
+          <div class="comparison-card">
+            <h3>Other Platforms</h3>
+            <ul>
+              <li>Provide general advice</li>
+              <li>Require manual prompting</li>
+              <li>No structured scoring</li>
+              <li>No startup-specific workflow</li>
+              <li>Generic responses</li>
+            </ul>
+          </div>
+          <div class="comparison-card highlight-card">
+            <h3>BizBot</h3>
+            <ul>
+              <li>Structured evaluation framework</li>
+              <li>Risk detection system</li>
+              <li>Clear scoring dashboard</li>
+              <li>Guided improvement path</li>
+              <li>Built specifically for entrepreneurs</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Feature Highlights -->
+    <section class="highlights" id="features">
+      <div class="container">
+        <h2 class="section-title">Comprehensive Evaluation Tools</h2>
+        <div class="highlights-grid">
+          <div class="highlight-card">
+            <div class="highlight-icon">🎯</div>
+            <h3>Market Feasibility Scoring</h3>
+            <p>Data-driven assessment of market demand and competition</p>
+          </div>
+          <div class="highlight-card">
+            <div class="highlight-icon">🔥</div>
+            <h3>Risk Heatmap</h3>
+            <p>
+              Visual identification of high-risk areas in your business model
+            </p>
+          </div>
+          <div class="highlight-card">
+            <div class="highlight-icon">💡</div>
+            <h3>Improvement Recommendations</h3>
+            <p>Prioritized action items to strengthen your concept</p>
+          </div>
+          <div class="highlight-card">
+            <div class="highlight-icon">🗺️</div>
+            <h3>Growth Roadmap Generator</h3>
+            <p>Strategic expansion paths for long-term success</p>
+          </div>
+          <div class="highlight-card">
+            <div class="highlight-icon">📍</div>
+            <h3>Startup Stage Tracking</h3>
+            <p>Milestone-based guidance from idea to launch</p>
+          </div>
+          <div class="highlight-card">
+            <div class="highlight-icon">📊</div>
+            <h3>Financial Projection Simulator</h3>
+            <p>
+              Simulates revenue, cost structure, and break-even timelines to
+              test financial sustainability before launch.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Final CTA -->
+
+    <!-- Footer -->
+    <footer>
+      <div class="container">
+        <p>© 2026 BizBot. A decision-support platform for entrepreneurs.</p>
+      </div>
+    </footer>
+
+    <script>
+      // Smooth scroll for navigation links
+      document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+        anchor.addEventListener("click", function (e) {
+          e.preventDefault();
+          const target = document.querySelector(this.getAttribute("href"));
+          if (target) {
+            target.scrollIntoView({
+              behavior: "smooth",
+              block: "start",
+            });
+            // Close mobile menu if open
+            document.getElementById("navLinks").classList.remove("active");
+          }
+        });
+      });
+
+      // Mobile menu toggle
+      const mobileMenuBtn = document.getElementById("mobileMenuBtn");
+      const navLinks = document.getElementById("navLinks");
+
+      mobileMenuBtn.addEventListener("click", function () {
+        navLinks.classList.toggle("active");
+      });
+
+      // Close mobile menu when clicking outside
+      document.addEventListener("click", function (event) {
+        const isClickInside =
+          navLinks.contains(event.target) ||
+          mobileMenuBtn.contains(event.target);
+        if (!isClickInside) {
+          navLinks.classList.remove("active");
+        }
+      });
+
+      // CTA buttons smooth scroll
+      document.querySelectorAll("button").forEach((button) => {
+        if (
+          button.textContent.includes("Evaluate")
+        ) {
+          button.addEventListener("click", function () {
+            window.location.href = 'questionnaire.html';
+          });
+        } else if (button.textContent.includes("See How It Works")) {
+          button.addEventListener("click", function () {
+            document.getElementById("how-it-works").scrollIntoView({
+              behavior: "smooth",
+            });
+          });
+        }
+      });
+
+      // Add intersection observer for fade-in animations
+      const observerOptions = {
+        threshold: 0.1,
+        rootMargin: "0px 0px -50px 0px",
+      };
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.style.opacity = "1";
+            entry.target.style.transform = "translateY(0)";
+          }
+        });
+      }, observerOptions);
+
+      document
+        .querySelectorAll(".feature-card, .step, .highlight-card")
+        .forEach((el) => {
+          el.style.opacity = "0";
+          el.style.transform = "translateY(30px)";
+          el.style.transition =
+            "opacity 0.6s ease-out, transform 0.6s ease-out";
+          observer.observe(el);
+        });
+
+      // Add active state to nav links based on scroll position
+      window.addEventListener("scroll", () => {
+        let current = "";
+        const sections = document.querySelectorAll("section[id]");
+
+        sections.forEach((section) => {
+          const sectionTop = section.offsetTop;
+          const sectionHeight = section.clientHeight;
+          if (scrollY >= sectionTop - 100) {
+            current = section.getAttribute("id");
+          }
+        });
+
+        document.querySelectorAll(".nav-links a").forEach((link) => {
+          link.classList.remove("active");
+          if (link.getAttribute("href") === `#${current}`) {
+            link.classList.add("active");
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

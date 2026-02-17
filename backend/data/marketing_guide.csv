@@ -1,0 +1,7 @@
+id,topic,skill_level,description,tools,estimated_hours
+marketing_001,Content Marketing,Intermediate,"Create valuable content that attracts and engages your target audience. Includes blog posts, videos, podcasts, and social media content. Helps establish thought leadership and build trust with potential customers.",Canva|Buffer|HubSpot,40
+marketing_002,Social Media Strategy,Beginner,"Develop a comprehensive social media strategy aligned with business goals. Includes platform selection, content calendar, engagement tactics, and community management.",Instagram|TikTok|Hootsuite,20
+marketing_003,SEO Fundamentals,Intermediate,"Learn how to optimize your website and content for search engines. Covers keyword research, on-page optimization, technical SEO, and link building strategies.",SEMrush|Ahrefs|Google Search Console,60
+marketing_004,Email Marketing Campaign,Beginner,"Build targeted email campaigns to nurture leads and retain customers. Includes list building, segmentation, copywriting, and analytics.",Mailchimp|ConvertKit|SendGrid,15
+marketing_005,Paid Advertising,Advanced,"Master paid advertising across Google Ads, Facebook/Instagram, LinkedIn, and other platforms. Includes campaign setup, optimization, and ROI tracking.",Google Ads|Facebook Ads Manager|LinkedIn Campaign Manager,80
+marketing_006,Analytics and Measurement,Intermediate,"Implement tracking systems to measure marketing performance. Understand key metrics like CAC, ROAS, conversion rate, and attribution modeling.",Google Analytics|Mixpanel|Amplitude,35

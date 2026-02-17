@@ -1,0 +1,407 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Find Your Perfect Business Idea | BizBot</title>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", sans-serif;
+        background: linear-gradient(180deg, #f7fafc 0%, #edf2f7 100%);
+        min-height: 100vh;
+        padding: 40px 20px;
+      }
+
+      /* Sidebar */
+      .sidebar {
+        position: fixed; left: 0; top: 0; width: 60px; height: 100vh;
+        background: white; border-right: 1px solid #e2e8f0;
+        display: flex; flex-direction: column; align-items: center;
+        padding: 20px 0; z-index: 100;
+        transition: width 0.3s ease; overflow: hidden;
+      }
+      .main { margin-left: 60px; }
+      .sidebar:hover + .main { margin-left: 200px; }
+      .sidebar:hover { width: 200px; }
+      .sidebar-logo {
+        width: 40px; height: 40px; border-radius: 10px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer; margin-bottom: 50px; flex-shrink: 0;
+        transition: transform 0.2s; text-decoration: none;
+      }
+      .sidebar-logo:hover { transform: scale(1.05); }
+      .sidebar-logo svg { color: white; }
+      .sidebar-nav { display: flex; flex-direction: column; gap: 20px; width: 100%; }
+      .sidebar-item {
+        width: 100%; padding: 0 10px; display: flex; align-items: center;
+        gap: 12px; text-decoration: none; transition: all 0.2s;
+      }
+      .sidebar-icon {
+        width: 40px; height: 40px; border-radius: 8px;
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer; transition: all 0.2s; color: #718096; flex-shrink: 0;
+      }
+      .sidebar-item:hover .sidebar-icon, .sidebar-item.active .sidebar-icon {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;
+      }
+      .sidebar-label {
+        font-size: 14px; font-weight: 600; color: #2d3748;
+        white-space: nowrap; opacity: 0; transition: opacity 0.3s ease;
+      }
+      .sidebar:hover .sidebar-label { opacity: 1; }
+      .sidebar-item.active .sidebar-label { color: #667eea; }
+
+      .container { max-width: 800px; margin: 0 auto; }
+      .header { text-align: center; margin-bottom: 48px; }
+      .logo {
+        font-size: 32px; font-weight: 700;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        background-clip: text; margin-bottom: 16px;
+      }
+      .header h1 { font-size: 36px; color: #1a202c; margin-bottom: 12px; }
+      .header p { font-size: 18px; color: #4a5568; }
+      .progress-bar { height: 8px; background: #e2e8f0; border-radius: 100px; margin-bottom: 40px; overflow: hidden; }
+      .progress-fill { height: 100%; background: linear-gradient(90deg, #667eea 0%, #764ba2 100%); transition: width 0.3s ease; width: 0%; }
+      .step-indicator { text-align: center; margin-bottom: 32px; color: #667eea; font-weight: 600; }
+
+      .question-card {
+        background: white; border-radius: 16px; padding: 40px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 24px; display: none;
+      }
+      .question-card.active { display: block; animation: slideIn 0.4s ease-out; }
+      @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+      .question-card h2 { font-size: 24px; color: #1a202c; margin-bottom: 12px; }
+      .question-card .helper-text { color: #718096; font-size: 15px; margin-bottom: 24px; }
+
+      .form-group { margin-bottom: 24px; }
+      .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #2d3748; }
+      .form-group input[type="number"] {
+        width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0;
+        border-radius: 8px; font-size: 16px; transition: border-color 0.2s;
+      }
+      .form-group input:focus { outline: none; border-color: #667eea; }
+
+      .radio-group { display: flex; flex-direction: column; gap: 12px; }
+      .radio-option {
+        display: flex; align-items: center; padding: 16px;
+        border: 2px solid #e2e8f0; border-radius: 8px;
+        cursor: pointer; transition: all 0.2s;
+      }
+      .radio-option:hover { border-color: #667eea; background: #f7fafc; }
+      .radio-option input { margin-right: 12px; width: 20px; height: 20px; cursor: pointer; }
+      .radio-option.selected { border-color: #667eea; background: rgba(102,126,234,0.05); }
+
+      .chip-group { display: flex; flex-wrap: wrap; gap: 10px; }
+      .chip {
+        padding: 10px 20px; border: 2px solid #e2e8f0; border-radius: 100px;
+        cursor: pointer; transition: all 0.2s; font-size: 15px;
+        color: #4a5568; background: white; user-select: none;
+      }
+      .chip:hover { border-color: #667eea; background: #f7fafc; }
+      .chip.selected { border-color: #667eea; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+
+      .button-group { display: flex; gap: 16px; margin-top: 32px; }
+      .btn {
+        flex: 1; padding: 16px 32px; border: none; border-radius: 12px;
+        font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+      }
+      .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+      .btn-primary:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 16px rgba(102,126,234,0.3); }
+      .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+      .btn-secondary { background: white; color: #667eea; border: 2px solid #667eea; }
+      .btn-secondary:hover { background: #f7fafc; }
+
+      .completion-message { display: none; text-align: center; padding: 60px 40px; }
+      .completion-message.active { display: block; }
+      .completion-message .icon { font-size: 64px; margin-bottom: 24px; }
+      .completion-message h2 { font-size: 32px; color: #1a202c; margin-bottom: 16px; }
+      .completion-message p { font-size: 18px; color: #4a5568; margin-bottom: 32px; }
+
+      .loading-spinner {
+        display: inline-block; width: 40px; height: 40px;
+        border: 4px solid #e2e8f0; border-top-color: #667eea;
+        border-radius: 50%; animation: spin 1s linear infinite;
+      }
+      @keyframes spin { to { transform: rotate(360deg); } }
+      .error-msg { color: #e53e3e; font-size: 14px; margin-top: 8px; display: none; }
+
+      @media (max-width: 768px) {
+        .sidebar { display: none; }
+        .main { margin-left: 0 !important; }
+        .header h1 { font-size: 28px; }
+        .question-card { padding: 24px; }
+        .button-group { flex-direction: column; }
+        .btn { width: 100%; }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <a href="land_page.html" class="sidebar-logo">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
+      </a>
+      <div class="sidebar-nav">
+        <a href="land_page.html" class="sidebar-item"><div class="sidebar-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg></div><span class="sidebar-label">Home</span></a>
+        <a href="dashboard.html" class="sidebar-item"><div class="sidebar-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg></div><span class="sidebar-label">Dashboard</span></a>
+        <a href="questionnaire.html" class="sidebar-item active"><div class="sidebar-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg></div><span class="sidebar-label">Questionnaire</span></a>
+        <a href="recommendations.html" class="sidebar-item"><div class="sidebar-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"></path></svg></div><span class="sidebar-label">Recommendations</span></a>
+      </div>
+    </div>
+
+    <div class="main">
+      <div class="container">
+        <div class="header">
+          <div class="logo">BizBot</div>
+          <h1>Find Your Perfect Business Idea</h1>
+          <p>Answer 7 questions to get personalized, data-driven recommendations</p>
+        </div>
+
+        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+        <div class="step-indicator" id="stepIndicator">Question 1 of 7</div>
+
+        <!-- Step 1: Skills -->
+        <div class="question-card active" data-step="1">
+          <h2>What are your top skills?</h2>
+          <p class="helper-text">Select all that apply — these help us match you with the right ideas</p>
+          <div class="chip-group" id="skillsGroup">
+            <div class="chip" data-value="Python">Python</div>
+            <div class="chip" data-value="JavaScript">JavaScript</div>
+            <div class="chip" data-value="Marketing">Marketing</div>
+            <div class="chip" data-value="Sales">Sales</div>
+            <div class="chip" data-value="Data Analysis">Data Analysis</div>
+            <div class="chip" data-value="Design">Design</div>
+            <div class="chip" data-value="Finance">Finance</div>
+            <div class="chip" data-value="Writing">Writing</div>
+            <div class="chip" data-value="Management">Management</div>
+            <div class="chip" data-value="Customer Support">Customer Support</div>
+            <div class="chip" data-value="Software Development">Software Development</div>
+            <div class="chip" data-value="UX/UI Design">UX/UI Design</div>
+            <div class="chip" data-value="Digital Marketing">Digital Marketing</div>
+            <div class="chip" data-value="Supply Chain">Supply Chain</div>
+            <div class="chip" data-value="Operations">Operations</div>
+          </div>
+          <p class="error-msg" id="err1">Please select at least one skill</p>
+        </div>
+
+        <!-- Step 2: Experience Level -->
+        <div class="question-card" data-step="2">
+          <h2>What's your experience level?</h2>
+          <p class="helper-text">We'll match idea difficulty to where you are</p>
+          <div class="radio-group">
+            <label class="radio-option"><input type="radio" name="experience_level" value="Beginner" /><span>Beginner — new to business or startups</span></label>
+            <label class="radio-option"><input type="radio" name="experience_level" value="Intermediate" /><span>Intermediate — some business or project experience</span></label>
+            <label class="radio-option"><input type="radio" name="experience_level" value="Expert" /><span>Expert — extensive entrepreneurship or industry experience</span></label>
+          </div>
+          <p class="error-msg" id="err2">Please select your experience level</p>
+        </div>
+
+        <!-- Step 3: Industry Interest -->
+        <div class="question-card" data-step="3">
+          <h2>Which industries interest you?</h2>
+          <p class="helper-text">Select one or more — we'll focus recommendations on these domains</p>
+          <div class="chip-group" id="industryGroup">
+            <div class="chip" data-value="FinTech">FinTech</div>
+            <div class="chip" data-value="HealthTech">HealthTech</div>
+            <div class="chip" data-value="EdTech">EdTech</div>
+            <div class="chip" data-value="AI/ML">AI / ML</div>
+            <div class="chip" data-value="E-commerce">E-commerce</div>
+            <div class="chip" data-value="Sustainability">Sustainability</div>
+            <div class="chip" data-value="SaaS">SaaS</div>
+            <div class="chip" data-value="Marketplace">Marketplace</div>
+            <div class="chip" data-value="HRTech">HRTech</div>
+            <div class="chip" data-value="PropTech">PropTech</div>
+            <div class="chip" data-value="FoodTech">FoodTech</div>
+          </div>
+          <p class="error-msg" id="err3">Please select at least one industry</p>
+        </div>
+
+        <!-- Step 4: Business Model -->
+        <div class="question-card" data-step="4">
+          <h2>What business model do you prefer?</h2>
+          <p class="helper-text">This filters ideas to match your preferred sales approach</p>
+          <div class="radio-group">
+            <label class="radio-option"><input type="radio" name="business_model" value="B2B" /><span>B2B — Selling to businesses</span></label>
+            <label class="radio-option"><input type="radio" name="business_model" value="B2C" /><span>B2C — Selling to consumers</span></label>
+            <label class="radio-option"><input type="radio" name="business_model" value="Both" /><span>Both — Open to either</span></label>
+          </div>
+          <p class="error-msg" id="err4">Please select a business model</p>
+        </div>
+
+        <!-- Step 5: Budget & Income -->
+        <div class="question-card" data-step="5">
+          <h2>What's your budget and income goal?</h2>
+          <p class="helper-text">We'll only show ideas that fit your financial situation</p>
+          <div class="form-group">
+            <label>Available starting capital ($)</label>
+            <input type="number" id="startingCapital" placeholder="e.g. 5000" min="0" step="100" />
+          </div>
+          <div class="form-group">
+            <label>Desired monthly income ($)</label>
+            <input type="number" id="desiredIncome" placeholder="e.g. 10000" min="0" step="100" />
+          </div>
+          <p class="error-msg" id="err5">Please enter your starting capital</p>
+        </div>
+
+        <!-- Step 6: Time Commitment -->
+        <div class="question-card" data-step="6">
+          <h2>How much time can you commit?</h2>
+          <p class="helper-text">We'll match difficulty to your availability</p>
+          <div class="radio-group">
+            <label class="radio-option"><input type="radio" name="time_commitment" value="part_time" /><span>Part-time — under 20 hours per week</span></label>
+            <label class="radio-option"><input type="radio" name="time_commitment" value="full_time" /><span>Full-time — 40+ hours per week</span></label>
+            <label class="radio-option"><input type="radio" name="time_commitment" value="flexible" /><span>Flexible — varies week to week</span></label>
+          </div>
+          <p class="error-msg" id="err6">Please select your time commitment</p>
+        </div>
+
+        <!-- Step 7: Network Strength -->
+        <div class="question-card" data-step="7">
+          <h2>How strong is your professional network?</h2>
+          <p class="helper-text">A strong network boosts B2B opportunities</p>
+          <div class="radio-group">
+            <label class="radio-option"><input type="radio" name="network_strength" value="Weak" /><span>Weak — just getting started, few industry contacts</span></label>
+            <label class="radio-option"><input type="radio" name="network_strength" value="Moderate" /><span>Moderate — solid connections in some areas</span></label>
+            <label class="radio-option"><input type="radio" name="network_strength" value="Strong" /><span>Strong — extensive network of professionals and decision-makers</span></label>
+          </div>
+          <p class="error-msg" id="err7">Please select your network strength</p>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div class="button-group" id="btnGroup">
+          <button class="btn btn-secondary" id="prevBtn" style="display:none;">Previous</button>
+          <button class="btn btn-primary" id="nextBtn">Next</button>
+        </div>
+
+        <!-- Completion / Loading -->
+        <div class="completion-message" id="completionMessage">
+          <div class="icon">✨</div>
+          <h2>Analyzing Your Profile...</h2>
+          <p>BizBot is scoring 999 startup ideas against your profile.</p>
+          <div class="loading-spinner"></div>
+          <p id="loadingStatus" style="margin-top:16px;font-size:14px;color:#718096;"></p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const API_BASE = window.location.origin;
+      let currentStep = 1;
+      const totalSteps = 7;
+      const formData = {};
+
+      // Chip toggle
+      document.querySelectorAll('.chip').forEach(chip => {
+        chip.addEventListener('click', function() { this.classList.toggle('selected'); });
+      });
+
+      // Radio styling
+      document.querySelectorAll('.radio-option').forEach(option => {
+        option.addEventListener('click', function() {
+          this.closest('.radio-group').querySelectorAll('.radio-option').forEach(o => o.classList.remove('selected'));
+          this.classList.add('selected');
+        });
+      });
+
+      function updateProgress() {
+        document.getElementById('progressFill').style.width = ((currentStep / totalSteps) * 100) + '%';
+        document.getElementById('stepIndicator').textContent = `Question ${currentStep} of ${totalSteps}`;
+      }
+
+      function showStep(step) {
+        document.querySelectorAll('.question-card').forEach(c => c.classList.remove('active'));
+        document.querySelector(`[data-step="${step}"]`).classList.add('active');
+        document.getElementById('prevBtn').style.display = step === 1 ? 'none' : 'block';
+        document.getElementById('nextBtn').textContent = step === totalSteps ? 'Find My Ideas' : 'Next';
+        document.querySelectorAll('.error-msg').forEach(e => e.style.display = 'none');
+        updateProgress();
+      }
+
+      function getSelectedChips(groupId) {
+        return Array.from(document.querySelectorAll(`#${groupId} .chip.selected`)).map(c => c.dataset.value);
+      }
+
+      function saveCurrentStepData() {
+        switch (currentStep) {
+          case 1: formData.skills = getSelectedChips('skillsGroup'); break;
+          case 2: { const r = document.querySelector('input[name="experience_level"]:checked'); if (r) formData.experience_level = r.value; break; }
+          case 3: formData.industry_interest = getSelectedChips('industryGroup'); break;
+          case 4: { const r = document.querySelector('input[name="business_model"]:checked'); if (r) formData.business_model_preference = r.value; break; }
+          case 5: {
+            const cap = document.getElementById('startingCapital').value;
+            const inc = document.getElementById('desiredIncome').value;
+            formData.starting_capital = cap ? parseFloat(cap) : 0;
+            formData.desired_income = inc ? parseFloat(inc) : 0;
+            break;
+          }
+          case 6: { const r = document.querySelector('input[name="time_commitment"]:checked'); if (r) formData.time_commitment = r.value; break; }
+          case 7: { const r = document.querySelector('input[name="network_strength"]:checked'); if (r) formData.network_strength = r.value; break; }
+        }
+      }
+
+      function validateCurrentStep() {
+        const errEl = document.getElementById(`err${currentStep}`);
+        if (errEl) errEl.style.display = 'none';
+        switch (currentStep) {
+          case 1: if (getSelectedChips('skillsGroup').length === 0) { errEl.style.display='block'; return false; } return true;
+          case 2: if (!document.querySelector('input[name="experience_level"]:checked')) { errEl.style.display='block'; return false; } return true;
+          case 3: if (getSelectedChips('industryGroup').length === 0) { errEl.style.display='block'; return false; } return true;
+          case 4: if (!document.querySelector('input[name="business_model"]:checked')) { errEl.style.display='block'; return false; } return true;
+          case 5: if (!document.getElementById('startingCapital').value) { errEl.style.display='block'; return false; } return true;
+          case 6: if (!document.querySelector('input[name="time_commitment"]:checked')) { errEl.style.display='block'; return false; } return true;
+          case 7: if (!document.querySelector('input[name="network_strength"]:checked')) { errEl.style.display='block'; return false; } return true;
+        }
+        return true;
+      }
+
+      document.getElementById('nextBtn').addEventListener('click', function() {
+        if (!validateCurrentStep()) return;
+        saveCurrentStepData();
+        if (currentStep < totalSteps) { currentStep++; showStep(currentStep); }
+        else { submitForm(); }
+      });
+
+      document.getElementById('prevBtn').addEventListener('click', function() {
+        if (currentStep > 1) { currentStep--; showStep(currentStep); }
+      });
+
+      async function submitForm() {
+        saveCurrentStepData();
+        document.querySelectorAll('.question-card').forEach(c => c.style.display = 'none');
+        document.getElementById('btnGroup').style.display = 'none';
+        document.querySelector('.step-indicator').style.display = 'none';
+        document.getElementById('completionMessage').classList.add('active');
+        document.getElementById('loadingStatus').textContent = 'Sending profile to scoring engine...';
+
+        try {
+          const response = await fetch(`${API_BASE}/api/match`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData)
+          });
+          if (!response.ok) {
+            const err = await response.json();
+            throw new Error(err.message || `Server error: ${response.status}`);
+          }
+          const data = await response.json();
+          sessionStorage.setItem('matchResults', JSON.stringify(data));
+          sessionStorage.setItem('userProfile', JSON.stringify(formData));
+          document.getElementById('loadingStatus').textContent =
+            `Found ${data.matches?.length || 0} matches! Redirecting...`;
+          setTimeout(() => { window.location.href = 'recommendations.html'; }, 1000);
+        } catch (error) {
+          document.getElementById('completionMessage').innerHTML = `
+            <div class="icon" style="font-size:64px;margin-bottom:24px;">&#9888;&#65039;</div>
+            <h2 style="font-size:32px;color:#1a202c;margin-bottom:16px;">Something went wrong</h2>
+            <p style="font-size:18px;color:#4a5568;margin-bottom:32px;">${error.message}</p>
+            <button class="btn btn-primary" onclick="location.reload()" style="max-width:200px;margin:0 auto;">Try Again</button>`;
+        }
+      }
+      updateProgress();
+    </script>
+  </body>
+</html>

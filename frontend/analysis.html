@@ -1,0 +1,409 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Business Analysis | BizBot</title>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", sans-serif;
+        background: #f7f9fc;
+        min-height: 100vh;
+      }
+
+      /* Sidebar */
+      .sidebar {
+        position: fixed; left: 0; top: 0; width: 60px; height: 100vh;
+        background: white; border-right: 1px solid #e2e8f0;
+        display: flex; flex-direction: column; align-items: center;
+        padding: 20px 0; z-index: 100;
+        transition: width 0.3s ease; overflow: hidden;
+      }
+      .sidebar:hover { width: 200px; }
+      .sidebar-logo {
+        width: 40px; height: 40px; border-radius: 10px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer; margin-bottom: 50px; flex-shrink: 0;
+        transition: transform 0.2s; text-decoration: none;
+      }
+      .sidebar-logo:hover { transform: scale(1.05); }
+      .sidebar-logo svg { color: white; }
+      .sidebar-nav { display: flex; flex-direction: column; gap: 20px; width: 100%; }
+      .sidebar-item {
+        width: 100%; padding: 0 10px; display: flex; align-items: center;
+        gap: 12px; text-decoration: none; transition: all 0.2s;
+      }
+      .sidebar-icon {
+        width: 40px; height: 40px; border-radius: 8px;
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer; transition: all 0.2s; color: #718096; flex-shrink: 0;
+      }
+      .sidebar-item:hover .sidebar-icon, .sidebar-item.active .sidebar-icon {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;
+      }
+      .sidebar-label {
+        font-size: 14px; font-weight: 600; color: #2d3748;
+        white-space: nowrap; opacity: 0; transition: opacity 0.3s ease;
+      }
+      .sidebar:hover .sidebar-label { opacity: 1; }
+      .sidebar-item.active .sidebar-label { color: #667eea; }
+
+      /* Main */
+      .main-container { margin-left: 60px; padding: 32px 40px; max-width: 1400px; }
+      .header { margin-bottom: 32px; }
+      .back-button {
+        display: inline-flex; align-items: center; gap: 8px;
+        color: #718096; text-decoration: none; font-size: 14px;
+        margin-bottom: 16px; cursor: pointer; background: none;
+        border: none; font-family: inherit;
+      }
+      .back-button:hover { color: #667eea; }
+      .page-title { font-size: 28px; font-weight: 700; color: #1a202c; margin-bottom: 8px; }
+      .page-subtitle { font-size: 15px; color: #718096; }
+
+      /* Grid */
+      .analysis-grid {
+        display: grid; grid-template-columns: repeat(12, 1fr); gap: 24px;
+      }
+      .card {
+        background: white; border-radius: 12px; padding: 28px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      }
+      .col-3 { grid-column: span 3; }
+      .col-4 { grid-column: span 4; }
+      .col-6 { grid-column: span 6; }
+      .col-8 { grid-column: span 8; }
+      .col-12 { grid-column: span 12; }
+      .card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+      .card-icon { font-size: 16px; }
+      .card-title { font-size: 16px; font-weight: 700; color: #1a202c; }
+
+      /* Viability */
+      .viability-card { text-align: center; }
+      .viability-label { font-size: 13px; color: #718096; margin-bottom: 20px; font-weight: 600; }
+      .score-circle { width: 140px; height: 140px; margin: 0 auto 20px; position: relative; }
+      .score-circle svg { transform: rotate(-90deg); }
+      .score-circle circle { fill: none; stroke-width: 12; }
+      .score-bg { stroke: #f0f0f0; }
+      .score-fill { stroke: url(#gradient); stroke-linecap: round; transition: stroke-dashoffset 1s ease; }
+      .score-number {
+        position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+        font-size: 48px; font-weight: 700;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+      .viability-status { font-size: 14px; color: #4a5568; font-weight: 500; margin-top: 8px; }
+
+      /* Risk / Issue items */
+      .issue-item, .suggestion-item {
+        padding: 14px 16px; border-radius: 8px; margin-bottom: 10px;
+        display: flex; align-items: center; justify-content: space-between; font-size: 14px;
+      }
+      .issue-item.high, .suggestion-item.high { background: #fee; }
+      .issue-item.medium, .suggestion-item.medium { background: #fef3c7; }
+      .issue-item.low, .suggestion-item.low { background: #dbeafe; }
+      .issue-text, .suggestion-text { color: #1a202c; font-weight: 500; flex: 1; }
+      .issue-badge {
+        padding: 4px 10px; border-radius: 12px; font-size: 10px;
+        font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; flex-shrink: 0; margin-left: 8px;
+      }
+      .issue-badge.high { background: #dc2626; color: white; }
+      .issue-badge.medium { background: #f59e0b; color: white; }
+      .issue-badge.low { background: #3b82f6; color: white; }
+
+      /* Market metric */
+      .market-metric { margin-bottom: 28px; }
+      .market-metric:last-child { margin-bottom: 0; }
+      .metric-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+      .metric-label { font-size: 14px; color: #1a202c; font-weight: 600; }
+      .metric-value { font-size: 16px; font-weight: 700; color: #667eea; }
+      .progress-bar { height: 8px; background: #f0f0f0; border-radius: 100px; overflow: hidden; margin-bottom: 8px; }
+      .progress-fill { height: 100%; background: linear-gradient(90deg, #667eea 0%, #764ba2 100%); border-radius: 100px; transition: width 1s ease; }
+      .metric-note { font-size: 12px; color: #a0aec0; font-style: italic; }
+
+      /* Cost */
+      .cost-item {
+        display: flex; justify-content: space-between; align-items: center;
+        padding: 14px 0; border-bottom: 1px solid #f7fafc;
+      }
+      .cost-item:last-child { border-bottom: none; }
+      .cost-label { font-size: 14px; color: #1a202c; font-weight: 600; }
+      .cost-value { font-size: 18px; font-weight: 700; color: #1a202c; }
+
+      /* Scalability */
+      .scalability-score {
+        font-size: 56px; font-weight: 700;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        margin-bottom: 12px;
+      }
+      .scalability-bars { display: flex; gap: 6px; margin-bottom: 16px; }
+      .scalability-bar { width: 14px; height: 36px; background: #f0f0f0; border-radius: 4px; }
+      .scalability-bar.filled { background: linear-gradient(180deg, #667eea 0%, #764ba2 100%); }
+      .scalability-desc { font-size: 13px; color: #718096; line-height: 1.6; }
+
+      /* Summary text */
+      .summary-text { font-size: 15px; color: #4a5568; line-height: 1.7; }
+      .section-text { font-size: 14px; color: #4a5568; line-height: 1.65; }
+      .list-item { padding: 10px 0; border-bottom: 1px solid #f7fafc; font-size: 14px; color: #2d3748; display: flex; align-items: flex-start; gap: 10px; }
+      .list-item:last-child { border-bottom: none; }
+      .list-bullet { color: #667eea; font-weight: 700; flex-shrink: 0; }
+
+      /* Loading */
+      .loading-state { text-align: center; padding: 120px 20px; }
+      .loading-state h2 { font-size: 28px; color: #1a202c; margin-bottom: 16px; }
+      .loading-state p { font-size: 16px; color: #718096; margin-bottom: 32px; }
+      .spinner {
+        display: inline-block; width: 48px; height: 48px;
+        border: 4px solid #e2e8f0; border-top-color: #667eea;
+        border-radius: 50%; animation: spin 1s linear infinite;
+      }
+      @keyframes spin { to { transform: rotate(360deg); } }
+
+      .empty-state { text-align: center; padding: 120px 20px; }
+      .empty-state h2 { font-size: 28px; color: #1a202c; margin-bottom: 12px; }
+      .empty-state p { font-size: 16px; color: #718096; margin-bottom: 24px; }
+      .btn-cta {
+        display: inline-block; padding: 14px 32px; border: none; border-radius: 10px;
+        font-size: 16px; font-weight: 600; cursor: pointer; text-decoration: none;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;
+        transition: all 0.2s;
+      }
+      .btn-cta:hover { transform: translateY(-2px); box-shadow: 0 8px 16px rgba(102,126,234,0.3); }
+
+      @media (max-width: 1200px) {
+        .col-3, .col-4, .col-6, .col-8 { grid-column: span 12; }
+      }
+      @media (max-width: 768px) {
+        .sidebar { display: none; }
+        .main-container { margin-left: 0; padding: 20px; }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <a href="land_page.html" class="sidebar-logo">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
+      </a>
+      <div class="sidebar-nav">
+        <a href="land_page.html" class="sidebar-item"><div class="sidebar-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg></div><span class="sidebar-label">Home</span></a>
+        <a href="dashboard.html" class="sidebar-item"><div class="sidebar-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg></div><span class="sidebar-label">Dashboard</span></a>
+        <a href="analysis.html" class="sidebar-item active"><div class="sidebar-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg></div><span class="sidebar-label">Analysis</span></a>
+        <a href="questionnaire.html" class="sidebar-item"><div class="sidebar-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg></div><span class="sidebar-label">Questionnaire</span></a>
+        <a href="recommendations.html" class="sidebar-item"><div class="sidebar-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"></path></svg></div><span class="sidebar-label">Recommendations</span></a>
+      </div>
+    </div>
+
+    <div class="main-container" id="mainContainer">
+      <!-- Populated by JavaScript -->
+    </div>
+
+    <script>
+    (function() {
+      const container = document.getElementById('mainContainer');
+      const raw = sessionStorage.getItem('analysisResult');
+
+      if (!raw) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div style="font-size:64px;margin-bottom:24px;">🔍</div>
+            <h2>No Analysis Yet</h2>
+            <p>Enter a business idea to get a comprehensive AI-powered analysis.</p>
+            <a href="idea-input.html" class="btn-cta">Analyze an Idea</a>
+          </div>`;
+        return;
+      }
+
+      let data;
+      try { data = JSON.parse(raw); } catch (e) {
+        container.innerHTML = `<div class="empty-state"><h2>Error loading results</h2><p>${e.message}</p><a href="idea-input.html" class="btn-cta">Try Again</a></div>`;
+        return;
+      }
+
+      const a = data.analysis || {};
+      const ideaText = data.business_idea || a.businessIdea || 'Business Idea';
+
+      // Extract data with flexible key access (camelCase from Mistral)
+      const viability = a.viabilityScore ?? a.viability_score ?? 0;
+      const risks = a.risks || a.key_risks || [];
+      const suggestions = a.suggestions || a.recommendations || [];
+      const marketFit = a.marketFit || a.market_fit || {};
+      const costStructure = a.costStructure || a.cost_structure || {};
+      const scalability = a.scalability || {};
+      const summary = a.summary || a.executive_summary || '';
+      const targetAudience = a.targetAudience || a.target_audience || [];
+      const revenueModel = a.revenueModel || a.revenue_model || '';
+      const competitiveLandscape = a.competitiveLandscape || a.competitive_landscape || '';
+
+      // Viability label
+      const viabilityLabel = viability >= 80 ? 'Strong potential' : viability >= 60 ? 'Promising with refinement' : viability >= 40 ? 'Needs significant work' : 'High risk';
+      const circumference = 2 * Math.PI * 62; // ~389.56
+      const offset = circumference - (viability / 100) * circumference;
+
+      let html = `
+        <div class="header">
+          <button class="back-button" onclick="window.location.href='idea-input.html'">← Back</button>
+          <h1 class="page-title">Analysis: ${ideaText.length > 80 ? ideaText.substring(0, 80) + '...' : ideaText}</h1>
+          <p class="page-subtitle">AI-powered deep analysis by Mistral — generated in ${Math.round(data.generation_time_ms || 0)}ms</p>
+        </div>
+        <div class="analysis-grid">
+
+          <!-- Viability Score -->
+          <div class="card col-4 viability-card">
+            <p class="viability-label">Overall Viability</p>
+            <div class="score-circle">
+              <svg width="140" height="140">
+                <defs><linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" style="stop-color:#667eea" />
+                  <stop offset="100%" style="stop-color:#764ba2" />
+                </linearGradient></defs>
+                <circle class="score-bg" cx="70" cy="70" r="62"></circle>
+                <circle class="score-fill" cx="70" cy="70" r="62"
+                        stroke-dasharray="${circumference}" stroke-dashoffset="${offset}"></circle>
+              </svg>
+              <div class="score-number">${Math.round(viability)}</div>
+            </div>
+            <div class="viability-status">${viabilityLabel}</div>
+          </div>`;
+
+      // Summary
+      if (summary) {
+        html += `
+          <div class="card col-8">
+            <div class="card-header"><span class="card-icon">📋</span><h3 class="card-title">Executive Summary</h3></div>
+            <p class="summary-text">${summary}</p>
+          </div>`;
+      }
+
+      // Risks
+      if (risks.length > 0) {
+        html += `<div class="card col-6"><div class="card-header"><span class="card-icon">⚠️</span><h3 class="card-title">Key Risks</h3></div>`;
+        risks.forEach((risk, i) => {
+          const riskText = typeof risk === 'string' ? risk : (risk.description || risk.name || risk.text || JSON.stringify(risk));
+          const severity = typeof risk === 'object' ? (risk.severity || risk.level || '') : '';
+          const level = severity.toLowerCase?.() || (i === 0 ? 'high' : i === 1 ? 'medium' : 'low');
+          html += `<div class="issue-item ${level}"><span class="issue-text">${riskText}</span><span class="issue-badge ${level}">${level.toUpperCase()}</span></div>`;
+        });
+        html += `</div>`;
+      }
+
+      // Suggestions
+      if (suggestions.length > 0) {
+        html += `<div class="card col-6"><div class="card-header"><span class="card-icon">💡</span><h3 class="card-title">Suggestions</h3></div>`;
+        suggestions.forEach((sug, i) => {
+          const sugText = typeof sug === 'string' ? sug : (sug.description || sug.text || sug.suggestion || JSON.stringify(sug));
+          const priority = typeof sug === 'object' ? (sug.priority || '') : '';
+          const level = priority.toLowerCase?.() || (i === 0 ? 'high' : i < 3 ? 'medium' : 'low');
+          html += `<div class="suggestion-item ${level}"><span class="suggestion-text">${sugText}</span><span class="issue-badge ${level}">${level.toUpperCase()}</span></div>`;
+        });
+        html += `</div>`;
+      }
+
+      // Market Fit
+      if (typeof marketFit === 'object' && Object.keys(marketFit).length > 0) {
+        html += `<div class="card col-6"><div class="card-header"><span class="card-icon">📈</span><h3 class="card-title">Market Fit</h3></div>`;
+        for (const [key, val] of Object.entries(marketFit)) {
+          const label = key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ').replace(/^\w/, c => c.toUpperCase());
+          if (typeof val === 'number') {
+            const pct = val > 1 ? val : Math.round(val * 100);
+            html += `<div class="market-metric"><div class="metric-header"><span class="metric-label">${label}</span><span class="metric-value">${pct}%</span></div><div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div></div>`;
+          } else {
+            html += `<div class="market-metric"><div class="metric-header"><span class="metric-label">${label}</span></div><p class="section-text">${val}</p></div>`;
+          }
+        }
+        html += `</div>`;
+      } else if (typeof marketFit === 'string') {
+        html += `<div class="card col-6"><div class="card-header"><span class="card-icon">📈</span><h3 class="card-title">Market Fit</h3></div><p class="section-text">${marketFit}</p></div>`;
+      }
+
+      // Cost Structure
+      if (typeof costStructure === 'object' && Object.keys(costStructure).length > 0) {
+        html += `<div class="card col-6"><div class="card-header"><span class="card-icon">💵</span><h3 class="card-title">Cost Structure</h3></div>`;
+        for (const [key, val] of Object.entries(costStructure)) {
+          const label = key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ').replace(/^\w/, c => c.toUpperCase());
+          const display = typeof val === 'number' ? '$' + val.toLocaleString() : val;
+          html += `<div class="cost-item"><div><div class="cost-label">${label}</div></div><div class="cost-value">${display}</div></div>`;
+        }
+        html += `</div>`;
+      } else if (typeof costStructure === 'string') {
+        html += `<div class="card col-6"><div class="card-header"><span class="card-icon">💵</span><h3 class="card-title">Cost Structure</h3></div><p class="section-text">${costStructure}</p></div>`;
+      }
+
+      // Scalability
+      if (typeof scalability === 'object' && Object.keys(scalability).length > 0) {
+        const scaleScore = scalability.score || scalability.rating || 0;
+        const scaleDesc = scalability.description || scalability.explanation || scalability.notes || '';
+        if (scaleScore > 0) {
+          const filled = Math.round(scaleScore > 10 ? scaleScore / 10 : scaleScore);
+          let bars = '';
+          for (let i = 0; i < 10; i++) bars += `<div class="scalability-bar${i < filled ? ' filled' : ''}"></div>`;
+          html += `<div class="card col-4"><div class="card-header"><span class="card-icon">🚀</span><h3 class="card-title">Scalability</h3></div><div class="scalability-score">${scaleScore}/10</div><div class="scalability-bars">${bars}</div>${scaleDesc ? `<p class="scalability-desc">${scaleDesc}</p>` : ''}</div>`;
+        } else {
+          html += `<div class="card col-4"><div class="card-header"><span class="card-icon">🚀</span><h3 class="card-title">Scalability</h3></div>`;
+          for (const [k, v] of Object.entries(scalability)) {
+            html += `<p class="section-text"><strong>${k.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ')}:</strong> ${v}</p>`;
+          }
+          html += `</div>`;
+        }
+      } else if (typeof scalability === 'string') {
+        html += `<div class="card col-4"><div class="card-header"><span class="card-icon">🚀</span><h3 class="card-title">Scalability</h3></div><p class="section-text">${scalability}</p></div>`;
+      }
+
+      // Target Audience
+      if (targetAudience.length > 0) {
+        html += `<div class="card col-4"><div class="card-header"><span class="card-icon">🎯</span><h3 class="card-title">Target Audience</h3></div>`;
+        targetAudience.forEach(t => {
+          html += `<div class="list-item"><span class="list-bullet">▸</span><span>${t}</span></div>`;
+        });
+        html += `</div>`;
+      }
+
+      // Revenue Model
+      if (revenueModel) {
+        html += `<div class="card col-4"><div class="card-header"><span class="card-icon">💰</span><h3 class="card-title">Revenue Model</h3></div><p class="section-text">${revenueModel}</p></div>`;
+      }
+
+      // Competitive Landscape
+      if (competitiveLandscape) {
+        html += `<div class="card col-12"><div class="card-header"><span class="card-icon">🏆</span><h3 class="card-title">Competitive Landscape</h3></div><p class="section-text">${competitiveLandscape}</p></div>`;
+      }
+
+      // Any extra fields from Mistral we haven't handled — render generically
+      const handled = new Set(['viabilityScore','viability_score','risks','key_risks','suggestions','recommendations',
+        'marketFit','market_fit','costStructure','cost_structure','scalability','summary','executive_summary',
+        'targetAudience','target_audience','revenueModel','revenue_model','competitiveLandscape','competitive_landscape','businessIdea','business_idea']);
+      for (const [key, val] of Object.entries(a)) {
+        if (handled.has(key) || val == null || val === '') continue;
+        const label = key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ').replace(/^\w/, c => c.toUpperCase());
+        if (Array.isArray(val)) {
+          html += `<div class="card col-6"><div class="card-header"><span class="card-icon">📌</span><h3 class="card-title">${label}</h3></div>`;
+          val.forEach(item => {
+            const text = typeof item === 'string' ? item : JSON.stringify(item);
+            html += `<div class="list-item"><span class="list-bullet">▸</span><span>${text}</span></div>`;
+          });
+          html += `</div>`;
+        } else if (typeof val === 'object') {
+          html += `<div class="card col-6"><div class="card-header"><span class="card-icon">📌</span><h3 class="card-title">${label}</h3></div>`;
+          for (const [k, v] of Object.entries(val)) {
+            html += `<p class="section-text" style="margin-bottom:8px"><strong>${k.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ')}:</strong> ${typeof v === 'object' ? JSON.stringify(v) : v}</p>`;
+          }
+          html += `</div>`;
+        } else {
+          html += `<div class="card col-6"><div class="card-header"><span class="card-icon">📌</span><h3 class="card-title">${label}</h3></div><p class="section-text">${val}</p></div>`;
+        }
+      }
+
+      html += `</div>
+        <div style="text-align:center;margin-top:40px;padding-bottom:60px;">
+          <a href="idea-input.html" class="btn-cta">← Analyze Another Idea</a>
+        </div>`;
+
+      container.innerHTML = html;
+    })();
+    </script>
+  </body>
+</html>

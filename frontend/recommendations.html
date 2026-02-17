@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Your Recommendations | BizBot</title>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", sans-serif;
+        background: linear-gradient(180deg, #f7fafc 0%, #edf2f7 100%);
+        min-height: 100vh;
+      }
+      .sidebar {
+        position: fixed; left: 0; top: 0; width: 60px; height: 100vh;
+        background: white; border-right: 1px solid #e2e8f0;
+        display: flex; flex-direction: column; align-items: center;
+        padding: 20px 0; z-index: 100;
+        transition: width 0.3s ease; overflow: hidden;
+      }
+      .main { margin-left: 60px; padding: 40px 20px; }
+      .sidebar:hover + .main { margin-left: 200px; }
+      .sidebar:hover { width: 200px; }
+      .sidebar-logo {
+        width: 40px; height: 40px; border-radius: 10px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer; margin-bottom: 50px; flex-shrink: 0;
+        transition: transform 0.2s; text-decoration: none;
+      }
+      .sidebar-logo:hover { transform: scale(1.05); }
+      .sidebar-logo svg { color: white; }
+      .sidebar-nav { display: flex; flex-direction: column; gap: 20px; width: 100%; }
+      .sidebar-item {
+        width: 100%; padding: 0 10px; display: flex; align-items: center;
+        gap: 12px; text-decoration: none; transition: all 0.2s;
+      }
+      .sidebar-icon {
+        width: 40px; height: 40px; border-radius: 8px;
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer; transition: all 0.2s; color: #718096; flex-shrink: 0;
+      }
+      .sidebar-item:hover .sidebar-icon, .sidebar-item.active .sidebar-icon {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;
+      }
+      .sidebar-label {
+        font-size: 14px; font-weight: 600; color: #2d3748;
+        white-space: nowrap; opacity: 0; transition: opacity 0.3s ease;
+      }
+      .sidebar:hover .sidebar-label { opacity: 1; }
+      .sidebar-item.active .sidebar-label { color: #667eea; }
+
+      .container { max-width: 1100px; margin: 0 auto; }
+      .page-header { text-align: center; margin-bottom: 40px; }
+      .page-header h1 {
+        font-size: 36px; font-weight: 700;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        background-clip: text; margin-bottom: 8px;
+      }
+      .page-header p { color: #4a5568; font-size: 16px; }
+      .summary-bar {
+        display: flex; justify-content: center; gap: 32px;
+        margin-bottom: 40px; flex-wrap: wrap;
+      }
+      .summary-stat {
+        text-align: center; padding: 16px 24px;
+        background: white; border-radius: 12px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      }
+      .summary-stat .value { font-size: 28px; font-weight: 700; color: #667eea; }
+      .summary-stat .label { font-size: 13px; color: #718096; margin-top: 4px; }
+
+      .match-card {
+        background: white; border-radius: 16px; padding: 32px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px;
+        border-left: 5px solid transparent; transition: transform 0.2s, box-shadow 0.2s;
+        position: relative;
+      }
+      .match-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
+      .match-card.top    { border-left-color: #48bb78; }
+      .match-card.good   { border-left-color: #667eea; }
+      .match-card.decent { border-left-color: #ecc94b; }
+
+      .card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
+      .card-top h3 { font-size: 18px; color: #1a202c; max-width: 70%; }
+      .match-badge {
+        display: flex; align-items: center; justify-content: center;
+        width: 64px; height: 64px; border-radius: 50%; font-weight: 700; font-size: 18px;
+        flex-shrink: 0;
+      }
+      .match-card.top    .match-badge { background: rgba(72,187,120,0.12); color: #2f855a; }
+      .match-card.good   .match-badge { background: rgba(102,126,234,0.12); color: #4c51bf; }
+      .match-card.decent .match-badge { background: rgba(236,201,75,0.12); color: #b7791f; }
+
+      .card-tags { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+      .tag {
+        padding: 4px 12px; border-radius: 100px; font-size: 13px; font-weight: 600;
+      }
+      .tag-domain   { background: rgba(102,126,234,0.1); color: #4c51bf; }
+      .tag-model    { background: rgba(72,187,120,0.1);  color: #2f855a; }
+      .tag-diff     { background: rgba(237,137,54,0.1);  color: #c05621; }
+      .tag-scale    { background: rgba(159,122,234,0.1); color: #6b46c1; }
+      .tag-cost     { background: rgba(56,178,172,0.1);  color: #285e61; }
+
+      .card-summary { color: #4a5568; line-height: 1.65; margin-bottom: 16px; font-size: 15px; }
+
+      .score-breakdown {
+        display: none; padding-top: 16px; border-top: 1px solid #e2e8f0; margin-top: 16px;
+      }
+      .score-breakdown.open { display: block; animation: slideIn 0.3s ease; }
+      @keyframes slideIn { from { opacity:0; transform: translateY(-8px); } to { opacity:1; transform: translateY(0); } }
+      .score-row { display: flex; align-items: center; margin-bottom: 10px; }
+      .score-label { width: 160px; font-size: 13px; color: #718096; font-weight: 600; }
+      .score-bar-bg { flex: 1; height: 8px; background: #e2e8f0; border-radius: 100px; margin: 0 12px; overflow: hidden; }
+      .score-bar-fill { height: 100%; border-radius: 100px; transition: width 0.5s ease; }
+      .score-val { font-size: 13px; font-weight: 700; color: #2d3748; width: 40px; text-align: right; }
+
+      .toggle-btn {
+        background: none; border: none; color: #667eea; font-weight: 600;
+        cursor: pointer; font-size: 14px; display: inline-flex; align-items: center; gap: 6px;
+      }
+      .toggle-btn:hover { text-decoration: underline; }
+      .toggle-btn .arrow { transition: transform 0.2s; display: inline-block; }
+      .toggle-btn.open .arrow { transform: rotate(180deg); }
+
+      .explanation { color: #4a5568; font-size: 14px; background: #f7fafc; border-radius: 8px; padding: 16px; margin-top: 12px; line-height: 1.6; }
+
+      .retake-cta { text-align: center; margin-top: 48px; padding-bottom: 60px; }
+      .retake-cta .btn {
+        padding: 16px 40px; border: none; border-radius: 12px;
+        font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;
+        text-decoration: none; display: inline-block;
+      }
+      .retake-cta .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 16px rgba(102,126,234,0.3); }
+
+      .empty-state { text-align: center; padding: 80px 20px; }
+      .empty-state .icon { font-size: 64px; margin-bottom: 24px; }
+      .empty-state h2 { font-size: 28px; color: #1a202c; margin-bottom: 12px; }
+      .empty-state p { font-size: 16px; color: #718096; margin-bottom: 32px; }
+
+      @media (max-width: 768px) {
+        .sidebar { display: none; }
+        .main { margin-left: 0 !important; }
+        .page-header h1 { font-size: 28px; }
+        .match-card { padding: 20px; }
+        .card-top { flex-direction: column; }
+        .card-top h3 { max-width: 100%; margin-bottom: 12px; }
+        .summary-bar { gap: 12px; }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <a href="land_page.html" class="sidebar-logo">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
+      </a>
+      <div class="sidebar-nav">
+        <a href="land_page.html" class="sidebar-item"><div class="sidebar-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg></div><span class="sidebar-label">Home</span></a>
+        <a href="dashboard.html" class="sidebar-item"><div class="sidebar-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg></div><span class="sidebar-label">Dashboard</span></a>
+        <a href="questionnaire.html" class="sidebar-item"><div class="sidebar-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg></div><span class="sidebar-label">Questionnaire</span></a>
+        <a href="recommendations.html" class="sidebar-item active"><div class="sidebar-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"></path></svg></div><span class="sidebar-label">Recommendations</span></a>
+      </div>
+    </div>
+
+    <div class="main">
+      <div class="container" id="resultsContainer">
+        <!-- Populated by JavaScript -->
+      </div>
+    </div>
+
+    <script>
+      (function() {
+        const container = document.getElementById('resultsContainer');
+        const raw = sessionStorage.getItem('matchResults');
+        const profile = JSON.parse(sessionStorage.getItem('userProfile') || '{}');
+
+        if (!raw) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <div class="icon">&#128270;</div>
+              <h2>No Results Yet</h2>
+              <p>Complete the questionnaire to get personalized business idea recommendations.</p>
+              <a href="questionnaire.html" class="retake-cta"><span class="btn">Take the Questionnaire</span></a>
+            </div>`;
+          return;
+        }
+
+        let data;
+        try { data = JSON.parse(raw); } catch(e) {
+          container.innerHTML = `<div class="empty-state"><div class="icon">&#9888;&#65039;</div><h2>Error Loading Results</h2><p>${e.message}</p><a href="questionnaire.html" class="retake-cta"><span class="btn">Retake Questionnaire</span></a></div>`;
+          return;
+        }
+
+        const matches = data.matches || data.recommendations || [];
+        if (matches.length === 0) {
+          container.innerHTML = `<div class="empty-state"><div class="icon">&#128533;</div><h2>No Matches Found</h2><p>Try adjusting your preferences — broader industry interests and skills will yield more results.</p><a href="questionnaire.html" class="retake-cta"><span class="btn">Retake Questionnaire</span></a></div>`;
+          return;
+        }
+
+        const topScore = (matches[0]?.match_score != null ? matches[0].match_score * 100 : (matches[0]?.match_percentage || 0));
+        const avgScore = (matches.reduce((s, m) => s + (m.match_score != null ? m.match_score * 100 : (m.match_percentage || 0)), 0) / matches.length);
+
+        let html = `
+          <div class="page-header">
+            <h1>Your Top Business Ideas</h1>
+            <p>Ranked by compatibility with your profile</p>
+          </div>
+          <div class="summary-bar">
+            <div class="summary-stat"><div class="value">${matches.length}</div><div class="label">Ideas Matched</div></div>
+            <div class="summary-stat"><div class="value">${Math.round(topScore)}%</div><div class="label">Top Match</div></div>
+            <div class="summary-stat"><div class="value">${Math.round(avgScore)}%</div><div class="label">Avg. Match</div></div>
+          </div>`;
+
+        matches.forEach((m, i) => {
+          const score = m.match_score != null ? m.match_score * 100 : (m.match_percentage || m.score || 0);
+          const tier = score >= 75 ? 'top' : score >= 50 ? 'good' : 'decent';
+          const domain = m.domain || '';
+          const model = m.business_model || '';
+          const diff = m.difficulty || '';
+          const scale = m.scalability || '';
+          const cost = m.estimated_cost_bucket || '';
+          const summary = m.short_summary || '';
+          const title = m.idea_text || m.original_idea_text || `Idea ${i + 1}`;
+          const displayTitle = title.length > 120 ? title.substring(0, 120) + '...' : title;
+          const explanation = m.explanation || '';
+
+          // Score breakdown
+          const components = m.score_breakdown || m.components || {};
+          const barColors = { domain_match: '#667eea', skill_overlap: '#764ba2', difficulty_fit: '#ed8936',
+                              scalability_fit: '#48bb78', business_model_match: '#38b2ac', network_bonus: '#9f7aea', time_feasibility: '#e53e3e' };
+          const labels = { domain_match: 'Domain Match', skill_overlap: 'Skill Overlap', difficulty_fit: 'Difficulty Fit',
+                           scalability_fit: 'Scalability Fit', business_model_match: 'Business Model', network_bonus: 'Network Bonus', time_feasibility: 'Time Fit' };
+
+          let breakdownHtml = '';
+          for (const [key, val] of Object.entries(components)) {
+            const pct = typeof val === 'number' ? Math.round(val * 100) : 0;
+            const color = barColors[key] || '#667eea';
+            const label = labels[key] || key.replace(/_/g, ' ');
+            breakdownHtml += `
+              <div class="score-row">
+                <span class="score-label">${label}</span>
+                <div class="score-bar-bg"><div class="score-bar-fill" style="width:${pct}%;background:${color};"></div></div>
+                <span class="score-val">${pct}%</span>
+              </div>`;
+          }
+
+          html += `
+            <div class="match-card ${tier}">
+              <div class="card-top">
+                <h3>${displayTitle}</h3>
+                <div class="match-badge">${Math.round(score)}%</div>
+              </div>
+              <div class="card-tags">
+                ${domain ? `<span class="tag tag-domain">${domain}</span>` : ''}
+                ${model ? `<span class="tag tag-model">${model}</span>` : ''}
+                ${diff ? `<span class="tag tag-diff">${diff}</span>` : ''}
+                ${scale ? `<span class="tag tag-scale">Scale: ${scale}</span>` : ''}
+                ${cost ? `<span class="tag tag-cost">${cost}</span>` : ''}
+              </div>
+              ${summary ? `<p class="card-summary">${summary}</p>` : ''}
+              <button class="toggle-btn" data-target="bd-${i}">
+                <span class="arrow">&#9660;</span> Score Breakdown
+              </button>
+              <div class="score-breakdown" id="bd-${i}">
+                ${breakdownHtml}
+                ${explanation ? `<div class="explanation">${explanation}</div>` : ''}
+              </div>
+            </div>`;
+        });
+
+        html += `
+          <div class="retake-cta">
+            <a href="questionnaire.html" class="btn">&#8592; Retake Questionnaire</a>
+          </div>`;
+
+        container.innerHTML = html;
+
+        // Toggle score breakdowns
+        document.querySelectorAll('.toggle-btn').forEach(btn => {
+          btn.addEventListener('click', function() {
+            const target = document.getElementById(this.dataset.target);
+            target.classList.toggle('open');
+            this.classList.toggle('open');
+          });
+        });
+      })();
+    </script>
+  </body>
+</html>

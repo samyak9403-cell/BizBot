@@ -1,0 +1,31 @@
+# Web Framework
+flask==3.0.0
+flask-cors==4.0.0
+gunicorn==21.2.0
+
+# Mistral AI
+mistralai==1.0.0
+
+# Vector Database
+faiss-cpu==1.9.0.post1
+numpy>=1.26.0
+
+# Document Processing
+PyPDF2==3.0.1
+
+# Data Processing
+pandas>=2.1.0
+tqdm>=4.66.0
+
+# Data Validation
+pydantic>=2.8.2
+
+# Environment Management
+python-dotenv==1.0.0
+
+# Utilities
+tiktoken>=0.5.2
+
+# Testing
+pytest==7.4.0
+hypothesis==6.92.0
